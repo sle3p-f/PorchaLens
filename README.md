@@ -1,4 +1,4 @@
-# PorchaLens (পর্চালেন্স) 📜🔍
+# PorchaLens (পর্চালেন্স) 
 ### AI-Powered Handwritten Bengali Land Record Digitization & 16-Ana Fraud Audit Engine
 **LandTech 2026 Innovation Hackathon**  
 **Track**: Digital Land Records, Verification & Digitization  
@@ -8,7 +8,7 @@
 
 ---
 
-## 📌 1. Project Overview
+##1. Project Overview
 In Bangladesh, historical **CS (Cadastral Survey, ~1920s)** and **SA (State Acquisition, ~1960s)** Khatians and Porchas are handwritten in archaic Bengali tenancy fractions (আনা, গণ্ডা, কড়া, ক্রান্তি, তিল). Standard OCR engines fail completely on these degraded manuscripts.
 
 **PorchaLens** solves this through a dual-engine architecture:
@@ -20,14 +20,14 @@ In Bangladesh, historical **CS (Cadastral Survey, ~1920s)** and **SA (State Acqu
 
 ---
 
-## 🏛️ 2. User Personas
+##  2. User Personas
 Designed with the official Bangladesh Government Land Ministry theme ([mutation.land.gov.bd](https://mutation.land.gov.bd)):
 * **নাগরিক সেবা (Citizen Mode)**: Easy upload of family Porchas, instant conversion of archaic units to modern শতাংশ (decimals), inheritance calculator, and pre-purchase safety checks.
 * **এসি ল্যান্ড ও তহশিলদার ড্যাশবোর্ড (AC Land & Tahsil Mode)**: Record room batch digitization, 16-Ana forensic audit, in-table correction of damaged text, and official e-Porcha seal generation.
 
 ---
 
-## 🛠️ 3. How to Run Locally
+##  3. How to Run Locally
 
 ### Prerequisites
 - Python 3.10+ (tested on Python 3.15)
@@ -62,7 +62,7 @@ Designed with the official Bangladesh Government Land Ministry theme ([mutation.
 
 ---
 
-## ☁️ 4. Vercel Deployment
+## 4. Vercel Deployment
 
 PorchaLens is pre-configured for Vercel serverless functions:
 - `api/index.py`: Serverless WSGI entrypoint.
@@ -76,7 +76,7 @@ In your Vercel project settings:
 
 ---
 
-## 🧪 5. Synthetic Data & Ethical Compliance
+## 5. Synthetic Data & Ethical Compliance
 
 In strict compliance with **LandTech 2026 Rule 10**:
 * **No Real Personal Data**: All test scenarios and names (Tariqul Islam, Fatima Begum, Rahim Uddin) are synthetic and fabricated for hackathon demonstration.
@@ -84,7 +84,7 @@ In strict compliance with **LandTech 2026 Rule 10**:
 
 ---
 
-## 🤖 6. AI Tools Disclosure
+## 6. AI Tools Disclosure
 
 In accordance with Hackathon Rules 10 & 14:
 * **Multimodal Extraction**: Google Gemini Vision API (`gemini-3.5-flash-lite`) is used for parsing visual Bengali manuscript pixels into structured JSON.
