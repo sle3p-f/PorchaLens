@@ -8,18 +8,37 @@ import io
 import time
 import base64
 import hashlib
+import traceback
 from flask import Flask, render_template, request, jsonify, send_from_directory
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
+
 from vision_engine import extract_and_verify_khatian
 from tenancy_math import audit_khatian_math, to_bangla_digits
 from security_registry import verify_land_safety
 from faraiz_engine import calculate_faraiz_distribution
 
-app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
+@app.errorhandler(500)
+def handle_500(e):
+    return f"<h3>Application Error (Debug Trace)</h3><pre>{traceback.format_exc()}</pre>", 500
+
+@app.errorhandler(Exception)
+def handle_all_exceptions(e):
+    return f"<h3>Unhandled Exception (Debug Trace)</h3><pre>{traceback.format_exc()}</pre>", 500
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    try:
+        return render_template("index.html")
+    except Exception as e:
+        return f"<h3>Template Render Error</h3><pre>{traceback.format_exc()}</pre>", 500
 
 @app.route("/api/process-upload", methods=["POST"])
 def process_upload():
@@ -38,7 +57,6 @@ def process_upload():
     # Process using Gemini Vision with model fallback & Tenancy Math Engine
     result = extract_and_verify_khatian(image_bytes, mime_type=mime_type, custom_api_key=custom_key)
     if result.get("success"):
-        # Serverless-friendly data URL (no disk storage required)
         b64_str = base64.b64encode(image_bytes).decode("utf-8")
         result["image_url"] = f"data:{mime_type};base64,{b64_str}"
 
@@ -56,7 +74,7 @@ def process_sample():
     else:
         filename = "sample_authentic_cs_khatian.jpg"
 
-    sample_path = os.path.join(app.root_path, "static", "samples", filename)
+    sample_path = os.path.join(BASE_DIR, "static", "samples", filename)
     if not os.path.exists(sample_path):
         return jsonify({"success": False, "error_bn": "নমুনা ফাইল পাওয়া যায়নি।"}), 404
 
@@ -132,9 +150,6 @@ def generate_certificate():
         "issued_timestamp": time.strftime("%d-%m-%Y %H:%M:%S"),
         "cert_hash": cert_hash
     })
-
-# WSGI handler for Vercel
-app_handler = app
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

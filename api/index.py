@@ -1,10 +1,12 @@
 import sys
 import os
 
-# Add parent directory to sys.path so app and its modules are discoverable
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ensure the root project directory is in sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 from app import app
 
-# Vercel serverless entrypoint
+# Vercel entrypoint
 app = app
