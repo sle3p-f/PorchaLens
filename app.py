@@ -81,7 +81,7 @@ def process_sample():
     with open(sample_path, "rb") as f:
         image_bytes = f.read()
 
-    result = extract_and_verify_khatian(image_bytes, mime_type="image/jpeg", custom_api_key=custom_key)
+    result = extract_and_verify_khatian(image_bytes, mime_type="image/jpeg", custom_api_key=custom_key, sample_type=sample_type)
     if result.get("success"):
         b64_str = base64.b64encode(image_bytes).decode("utf-8")
         result["image_url"] = f"data:image/jpeg;base64,{b64_str}"

@@ -490,15 +490,21 @@
 
       <div class="space-y-3">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
-          <input type="password" id="custom-api-input" placeholder="AQ.Ab8RN..." class="w-full text-xs font-mono p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key</label>
+          <input type="password" id="custom-api-input" placeholder="AIzaSy... অথবা আপনার নিজস্ব Gemini কী" class="w-full text-xs font-mono p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
         </div>
-        <p class="text-[11px] text-slate-500">
-          * সিস্টেমে স্বয়ংক্রিয়ভাবে <strong>gemini-3.5-flash-lite</strong>, <strong>gemini-3.1-flash-lite</strong> এবং <strong>gemini-3.5-flash</strong> এর মধ্যে ফলব্যাক রয়েছে।
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          * বিনামূল্যে ব্যক্তিগত API কী পেতে পারেন <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-700 font-semibold underline hover:text-emerald-900">Google AI Studio</a> থেকে।<br>
+          * স্বয়ংক্রিয়ভাবে <strong>gemini-3.5-flash-lite</strong>, <strong>gemini-3.1-flash-lite</strong> ও <strong>gemini-3.5-flash</strong> ফলব্যাক সমর্থিত।
         </p>
-        <div class="flex justify-end space-x-2 pt-2">
-          <button onclick="toggleApiKeyModal()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">বাতিল</button>
-          <button onclick="saveApiKey()" class="px-4 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg">সংরক্ষণ করুন</button>
+        <div class="flex justify-between items-center pt-2">
+          <button onclick="resetApiKey()" class="px-3 py-1.5 text-xs text-rose-700 hover:bg-rose-50 border border-rose-300 rounded-lg font-medium transition">
+            <i class="fa-solid fa-rotate-left mr-1"></i> ডিফল্ট কী রিসেট
+          </button>
+          <div class="space-x-2">
+            <button onclick="toggleApiKeyModal()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">বাতিল</button>
+            <button onclick="saveApiKey()" class="px-4 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg shadow-sm">সংরক্ষণ করুন</button>
+          </div>
         </div>
       </div>
     </div>
@@ -576,6 +582,13 @@
         localStorage.removeItem("porchalens_api_key");
         document.getElementById("api-key-status").innerText = "ডিফল্ট কী সক্রিয়";
       }
+      toggleApiKeyModal();
+    }
+
+    function resetApiKey() {
+      localStorage.removeItem("porchalens_api_key");
+      document.getElementById("custom-api-input").value = "";
+      document.getElementById("api-key-status").innerText = "ডিফল্ট কী সক্রিয়";
       toggleApiKeyModal();
     }
 
@@ -663,7 +676,15 @@
 
     async function renderResult(data) {
       if (!data.success) {
-        showError(data.error_bn || "খতিয়ান পার্সিং ব্যর্থ হয়েছে।");
+        const errMsg = data.error_bn || "খতিয়ান পার্সিং ব্যর্থ হয়েছে।";
+        if (errMsg.includes("UNAUTHENTICATED") || errMsg.includes("API key not valid") || errMsg.includes("অবৈধ")) {
+          localStorage.removeItem("porchalens_api_key");
+          const statusElem = document.getElementById("api-key-status");
+          if (statusElem) statusElem.innerText = "ডিফল্ট কী সক্রিয়";
+          const inputElem = document.getElementById("custom-api-input");
+          if (inputElem) inputElem.value = "";
+        }
+        showError(errMsg);
         return;
       }
 

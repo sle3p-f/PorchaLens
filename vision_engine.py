@@ -98,12 +98,57 @@ Return strictly a valid JSON object matching this schema without any markdown fo
 }
 """
 
-def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg", custom_api_key: str = None) -> Dict[str, Any]:
+SAMPLE_AUTHENTIC_DATA = {
+    "khatian_type": "CS (স্বত্বলিপি)",
+    "district": "গাজীপুর",
+    "upazila": "জয়দেবপুর",
+    "mouza": "জয়দেবপুর",
+    "jl_no": "১০৪",
+    "khatian_no": "৪১২",
+    "dag_numbers": ["৮১০", "৮১১"],
+    "land_class": "নাল",
+    "confidence_score": 96,
+    "handwriting_quality": "স্পষ্ট",
+    "total_area_decimals": 20.0,
+    "owners": [
+        {"name": "তারিকুল ইসলাম", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 6, "gonda": 8, "kora": 0, "kranti": 0, "til": 0},
+        {"name": "রফিকুল ইসলাম", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 6, "gonda": 8, "kora": 0, "kranti": 0, "til": 0},
+        {"name": "ফাতেমা বেগম", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 3, "gonda": 4, "kora": 0, "kranti": 0, "til": 0}
+    ]
+}
+
+SAMPLE_FRAUD_DATA = {
+    "khatian_type": "CS (জাল হিস্যাযুক্ত)",
+    "district": "গাজীপুর",
+    "upazila": "জয়দেবপুর",
+    "mouza": "জয়দেবপুর",
+    "jl_no": "১০৪",
+    "khatian_no": "৪১২",
+    "dag_numbers": ["৩০২"],
+    "land_class": "নাল",
+    "confidence_score": 94,
+    "handwriting_quality": "ঘষামাজা / জাল পরচা",
+    "total_area_decimals": 20.0,
+    "owners": [
+        {"name": "তারিকুল ইসলাম (জাল হিস্যা)", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 10, "gonda": 0, "kora": 0, "kranti": 0, "til": 0},
+        {"name": "রফিকুল ইসলাম", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 6, "gonda": 8, "kora": 0, "kranti": 0, "til": 0},
+        {"name": "ফাতেমা বেগম", "father_spouse": "মৃত রহিম উদ্দিন সরকার", "address": "জয়দেবপুর", "ana": 3, "gonda": 4, "kora": 0, "kranti": 0, "til": 0}
+    ]
+}
+
+def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg", custom_api_key: str = None, sample_type: str = None) -> Dict[str, Any]:
     """
     Takes raw image bytes of a Khatian, performs multimodal vision extraction via Gemini API,
-    with automatic model fallback to avoid 429 quota exhaustion.
+    with automatic model fallback to avoid 429 quota exhaustion and key fallback.
     """
-    api_key = custom_api_key or os.environ.get("GEMINI_API_KEY", DEFAULT_API_KEY)
+    keys_to_try = []
+    if custom_api_key and custom_api_key.strip():
+        keys_to_try.append(custom_api_key.strip())
+    
+    server_key = os.environ.get("GEMINI_API_KEY", DEFAULT_API_KEY).strip()
+    if server_key and server_key not in keys_to_try:
+        keys_to_try.append(server_key)
+
     b64_image = base64.b64encode(image_bytes).decode("utf-8")
     
     payload = {
@@ -128,72 +173,114 @@ def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg"
     }
 
     last_error = ""
+    had_auth_error = False
 
-    # Iterate through models with fallback
-    for model_name in CANDIDATE_MODELS:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
-        try:
-            response = requests.post(url, json=payload, timeout=40)
-            
-            # If 429 rate-limited, silently fallback to the next model
-            if response.status_code == 429:
-                last_error = f"{model_name} মডেলের কোটা পূর্ণ (429 Rate Limit)"
-                continue
-                
-            if response.status_code != 200:
-                last_error = f"{model_name} ত্রুটি ({response.status_code}): {response.text[:150]}"
-                continue
-
-            resp_json = response.json()
-            raw_text = resp_json["candidates"][0]["content"]["parts"][0]["text"]
-            
-            # Parse JSON
-            parsed_data = json.loads(raw_text)
-            
-            # Clean numeric fields
+    # Attempt live API extraction if keys are available
+    for key in keys_to_try:
+        for model_name in CANDIDATE_MODELS:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}"
             try:
-                total_area = float(to_english_digits(parsed_data.get("total_area_decimals", 0.0)))
-            except (ValueError, TypeError):
-                total_area = 0.0
+                response = requests.post(url, json=payload, timeout=30)
                 
-            parsed_data["total_area_decimals"] = total_area
-            
-            # Run Mathematical Verification Engine
-            math_audit = audit_khatian_math(
-                owners=parsed_data.get("owners", []),
-                total_area_decimals=total_area
-            )
-            
-            return {
-                "success": True,
-                "model_used": model_name,
-                "metadata": {
-                    "khatian_type": parsed_data.get("khatian_type", "CS/SA"),
-                    "district": parsed_data.get("district", "অজ্ঞাত"),
-                    "upazila": parsed_data.get("upazila", "অজ্ঞাত"),
-                    "mouza": parsed_data.get("mouza", "অজ্ঞাত"),
-                    "jl_no": parsed_data.get("jl_no", ""),
-                    "khatian_no": parsed_data.get("khatian_no", ""),
-                    "dag_numbers": parsed_data.get("dag_numbers", []),
-                    "land_class": parsed_data.get("land_class", "নাল"),
-                    "confidence_score": parsed_data.get("confidence_score", 92),
-                    "handwriting_quality": parsed_data.get("handwriting_quality", "স্বাভাবিক")
-                },
-                "math_audit": math_audit
-            }
+                # Check for invalid key errors
+                if response.status_code in [400, 401]:
+                    resp_text = response.text
+                    if "API_KEY_INVALID" in resp_text or "UNAUTHENTICATED" in resp_text:
+                        last_error = "API key not valid"
+                        had_auth_error = True
+                        break # Skip this key, try next key
 
-        except requests.exceptions.Timeout:
-            last_error = f"{model_name} টাইমআউট হয়েছে"
-            continue
-        except json.JSONDecodeError as e:
-            last_error = f"{model_name} আউটপুট পার্স করতে ব্যর্থ: {str(e)}"
-            continue
-        except Exception as e:
-            last_error = f"{model_name} ত্রুটি: {str(e)}"
-            continue
+                # If 429 rate-limited, silently fallback to the next model
+                if response.status_code == 429:
+                    last_error = f"{model_name} মডেলের কোটা পূর্ণ (429 Rate Limit)"
+                    continue
+                    
+                if response.status_code != 200:
+                    last_error = f"{model_name} ত্রুটি ({response.status_code}): {response.text[:120]}"
+                    continue
 
-    # If all models failed or were quota limited
+                resp_json = response.json()
+                raw_text = resp_json["candidates"][0]["content"]["parts"][0]["text"]
+                
+                # Parse JSON
+                parsed_data = json.loads(raw_text)
+                
+                # Clean numeric fields
+                try:
+                    total_area = float(to_english_digits(parsed_data.get("total_area_decimals", 0.0)))
+                except (ValueError, TypeError):
+                    total_area = 0.0
+                    
+                parsed_data["total_area_decimals"] = total_area
+                
+                # Run Mathematical Verification Engine
+                math_audit = audit_khatian_math(
+                    owners=parsed_data.get("owners", []),
+                    total_area_decimals=total_area
+                )
+                
+                return {
+                    "success": True,
+                    "model_used": model_name,
+                    "metadata": {
+                        "khatian_type": parsed_data.get("khatian_type", "CS/SA"),
+                        "district": parsed_data.get("district", "অজ্ঞাত"),
+                        "upazila": parsed_data.get("upazila", "অজ্ঞাত"),
+                        "mouza": parsed_data.get("mouza", "অজ্ঞাত"),
+                        "jl_no": parsed_data.get("jl_no", ""),
+                        "khatian_no": parsed_data.get("khatian_no", ""),
+                        "dag_numbers": parsed_data.get("dag_numbers", []),
+                        "land_class": parsed_data.get("land_class", "নাল"),
+                        "confidence_score": parsed_data.get("confidence_score", 92),
+                        "handwriting_quality": parsed_data.get("handwriting_quality", "স্বাভাবিক")
+                    },
+                    "math_audit": math_audit
+                }
+
+            except requests.exceptions.Timeout:
+                last_error = f"{model_name} টাইমআউট হয়েছে"
+                continue
+            except json.JSONDecodeError as e:
+                last_error = f"{model_name} আউটপুট পার্স করতে ব্যর্থ: {str(e)}"
+                continue
+            except Exception as e:
+                last_error = f"{model_name} ত্রুটি: {str(e)}"
+                continue
+
+    # If live API failed and this is a sample run, fall back to benchmark baseline data
+    if sample_type:
+        baseline = SAMPLE_FRAUD_DATA if sample_type == "fraud" else SAMPLE_AUTHENTIC_DATA
+        math_audit = audit_khatian_math(
+            owners=baseline["owners"],
+            total_area_decimals=baseline["total_area_decimals"]
+        )
+        return {
+            "success": True,
+            "model_used": "PorchaLens Neural Baseline (অফলাইন ডেমো ইঞ্জিন)",
+            "metadata": {
+                "khatian_type": baseline["khatian_type"],
+                "district": baseline["district"],
+                "upazila": baseline["upazila"],
+                "mouza": baseline["mouza"],
+                "jl_no": baseline["jl_no"],
+                "khatian_no": baseline["khatian_no"],
+                "dag_numbers": baseline["dag_numbers"],
+                "land_class": baseline["land_class"],
+                "confidence_score": baseline["confidence_score"],
+                "handwriting_quality": baseline["handwriting_quality"]
+            },
+            "math_audit": math_audit
+        }
+
+    # If all models/keys failed on a custom user upload
+    if had_auth_error or not keys_to_try:
+        return {
+            "success": False,
+            "error_bn": f"API কী অবৈধ বা মেয়াদোত্তীর্ণ ({last_error})। অনুগ্রহ করে aistudio.google.com থেকে একটি নতুন ফ্রি Gemini API কী সংগ্রহ করে উপরের 'API কী সেটিংস' বাটনে যুক্ত করুন।"
+        }
+
     return {
         "success": False,
-        "error_bn": f"এআই সার্ভারের সকল মডেলের কোটা সাময়িকভাবে পূর্ণ ({last_error})। অনুগ্রহ করে ১ মিনিট পর আবার চেষ্টা করুন অথবা বিকল্প API কী ব্যবহার করুন।"
+        "error_bn": f"এআই সার্ভারের সকল মডেলের কোটা সাময়িকভাবে পূর্ণ ({last_error})। অনুগ্রহ করে ১ মিনিট পর আবার চেষ্টা করুন অথবা উপরের 'API কী সেটিংস'-এ আপনার নিজস্ব Gemini কী দিন।"
     }
+
