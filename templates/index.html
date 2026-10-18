@@ -323,8 +323,15 @@
                 <span id="meta-khatian-no" class="font-bold text-emerald-800 text-sm">--</span>
               </div>
               <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <span class="text-slate-500 block">দাগ নং:</span>
-                <span id="meta-dag-no" class="font-bold text-slate-900 text-sm">--</span>
+                <div class="flex items-center justify-between text-slate-500 mb-0.5">
+                  <span class="block text-xs">দাগ নং:</span>
+                  <button id="manual-dag-btn" onclick="showManualDagInput()" class="text-[10px] text-emerald-700 underline font-semibold hidden hover:text-emerald-900">পরিবর্তন</button>
+                </div>
+                <div id="meta-dag-no" class="font-bold text-slate-900 text-sm">--</div>
+                <div id="manual-dag-box" class="hidden mt-1.5 flex items-center gap-1">
+                  <input type="text" id="manual-dag-input" placeholder="দাগ নং (যেমন: ৮১০)" class="w-full text-xs p-1 border border-slate-300 rounded font-mono focus:outline-none focus:border-emerald-600">
+                  <button onclick="verifyManualDag()" class="px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white text-[10px] rounded font-bold whitespace-nowrap shadow-sm">যাচাই</button>
+                </div>
               </div>
               <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
                 <span class="text-slate-500 block">জমির শ্রেণী:</span>
@@ -702,9 +709,29 @@
       document.getElementById("meta-district").innerText = meta.district;
       document.getElementById("meta-upazila").innerText = meta.upazila;
       document.getElementById("meta-mouza").innerText = `${meta.mouza} (জে.এল. ${meta.jl_no || '-'})`;
-      document.getElementById("meta-khatian-no").innerText = meta.khatian_no;
-      document.getElementById("meta-dag-no").innerText = Array.isArray(meta.dag_numbers) ? meta.dag_numbers.join(", ") : meta.dag_numbers;
-      document.getElementById("meta-land-class").innerText = meta.land_class;
+      document.getElementById("meta-khatian-no").innerText = meta.khatian_no || "--";
+      
+      // Dag Number handling (Check if detected)
+      const hasDags = Array.isArray(meta.dag_numbers) 
+        ? (meta.dag_numbers.length > 0 && meta.dag_numbers[0] && String(meta.dag_numbers[0]).trim().length > 0 && String(meta.dag_numbers[0]).trim() !== "--") 
+        : (meta.dag_numbers && String(meta.dag_numbers).trim().length > 0 && String(meta.dag_numbers).trim() !== "--");
+      
+      const dagElem = document.getElementById("meta-dag-no");
+      const manualDagBtn = document.getElementById("manual-dag-btn");
+      const manualDagBox = document.getElementById("manual-dag-box");
+
+      if (hasDags) {
+        dagElem.innerText = Array.isArray(meta.dag_numbers) ? meta.dag_numbers.join(", ") : meta.dag_numbers;
+        dagElem.className = "font-bold text-slate-900 text-sm";
+        if (manualDagBtn) manualDagBtn.classList.remove("hidden");
+        if (manualDagBox) manualDagBox.classList.add("hidden");
+      } else {
+        dagElem.innerHTML = `<span class="text-rose-600 font-bold text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i> সনাক্ত করা যায়নি (Can't Find)</span>`;
+        if (manualDagBtn) manualDagBtn.classList.add("hidden");
+        if (manualDagBox) manualDagBox.classList.remove("hidden");
+      }
+
+      document.getElementById("meta-land-class").innerText = meta.land_class || "--";
       document.getElementById("meta-total-area").innerText = `${audit.total_area_decimals_bn} শতাংশ`;
 
       // Math Alert Banner
@@ -721,6 +748,8 @@
         alertIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-300"></i>`;
       } else if (audit.status === "FRAUD_OVERALLOCATION") {
         alertIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i>`;
+      } else if (audit.status === "UNDETECTED_OR_EMPTY") {
+        alertIcon.innerHTML = `<i class="fa-solid fa-file-circle-question text-slate-300"></i>`;
       } else {
         alertIcon.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-200"></i>`;
       }
@@ -736,15 +765,24 @@
     }
 
     async function runSafetyAudit(dagNumbers, mouza, district, mathStatus) {
-      const primaryDag = Array.isArray(dagNumbers) && dagNumbers.length > 0 ? dagNumbers[0] : (dagNumbers || "810");
+      let primaryDag = "";
+      if (Array.isArray(dagNumbers) && dagNumbers.length > 0) {
+        const validDags = dagNumbers.filter(d => d && String(d).trim().length > 0 && String(d).trim() !== "--");
+        if (validDags.length > 0) {
+          primaryDag = String(validDags[0]).trim();
+        }
+      } else if (dagNumbers && String(dagNumbers).trim() !== "--") {
+        primaryDag = String(dagNumbers).trim();
+      }
+
       try {
         const res = await fetch("/api/verify-land-safety", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             dag_no: primaryDag,
-            mouza: mouza,
-            district: district,
+            mouza: mouza || "",
+            district: district || "",
             math_status: mathStatus
           })
         });
@@ -761,9 +799,17 @@
     function renderSafetyPillars(report) {
       // Score pill
       const pill = document.getElementById("safety-score-pill");
-      pill.innerText = `${report.score_bn}/১০০`;
-      pill.className = `text-2xl font-extrabold px-3.5 py-1.5 rounded-xl text-white font-mono shadow-sm ${report.badge_bg}`;
-      document.getElementById("safety-score-rating").innerText = report.rating_bn.split('—')[0];
+      const ratingText = document.getElementById("safety-score-rating");
+      
+      if (report.is_undetected) {
+        pill.innerText = "Can't Find";
+        pill.className = "text-base font-extrabold px-3 py-1.5 rounded-xl text-white font-mono shadow-sm bg-slate-600";
+        ratingText.innerText = "যাচাই স্থগিত — তথ্য অনুপস্থিত";
+      } else {
+        pill.innerText = `${report.score_bn}/১০০`;
+        pill.className = `text-2xl font-extrabold px-3.5 py-1.5 rounded-xl text-white font-mono shadow-sm ${report.badge_bg}`;
+        ratingText.innerText = report.rating_bn.split('—')[0];
+      }
 
       // Recommendation
       const recBox = document.getElementById("safety-recommendation-box");
@@ -772,7 +818,10 @@
 
       // Pillar 1: Khas
       const khasBadge = document.getElementById("pillar-khas-badge");
-      if (report.khas_record.is_safe) {
+      if (report.khas_record.is_undetected) {
+        khasBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        khasBadge.innerText = "Can't Find";
+      } else if (report.khas_record.is_safe) {
         khasBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
         khasBadge.innerText = "নিরাপদ";
       } else {
@@ -783,7 +832,10 @@
 
       // Pillar 2: Bank Mortgage
       const bankBadge = document.getElementById("pillar-bank-badge");
-      if (report.bank_record.is_safe) {
+      if (report.bank_record.is_undetected) {
+        bankBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        bankBadge.innerText = "Can't Find";
+      } else if (report.bank_record.is_safe) {
         bankBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
         bankBadge.innerText = "দায়মুক্ত";
       } else {
@@ -794,7 +846,10 @@
 
       // Pillar 3: Court
       const courtBadge = document.getElementById("pillar-court-badge");
-      if (report.court_record.is_safe) {
+      if (report.court_record.is_undetected) {
+        courtBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        courtBadge.innerText = "Can't Find";
+      } else if (report.court_record.is_safe) {
         courtBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
         courtBadge.innerText = "মামলামুক্ত";
       } else {
@@ -805,7 +860,10 @@
 
       // Pillar 4: Tax
       const taxBadge = document.getElementById("pillar-tax-badge");
-      if (report.tax_record.is_safe) {
+      if (report.tax_record.is_undetected) {
+        taxBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        taxBadge.innerText = "Can't Find";
+      } else if (report.tax_record.is_safe) {
         taxBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
         taxBadge.innerText = "পরিশোধিত";
       } else {
@@ -813,6 +871,24 @@
         taxBadge.innerText = "বকেয়া";
       }
       document.getElementById("pillar-tax-text").innerText = report.tax_record.status_bn;
+    }
+
+    function showManualDagInput() {
+      const box = document.getElementById("manual-dag-box");
+      if (box) box.classList.toggle("hidden");
+    }
+
+    function verifyManualDag() {
+      const input = document.getElementById("manual-dag-input");
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      const meta = currentProcessedData ? currentProcessedData.metadata : {};
+      const audit = currentProcessedData ? currentProcessedData.math_audit : {};
+      meta.dag_numbers = [val];
+      document.getElementById("meta-dag-no").innerText = val;
+      document.getElementById("meta-dag-no").className = "font-bold text-slate-900 text-sm";
+      runSafetyAudit(val, meta.mouza || "", meta.district || "", audit.status || "AUTHENTIC_PERFECT");
     }
 
     function renderOwnersTable(owners, audit) {

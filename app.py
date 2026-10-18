@@ -102,9 +102,9 @@ def recalculate_math():
 def verify_safety():
     """Runs the 4-Pillar Citizen Land Safety Audit on a given Dag number."""
     data = request.json or {}
-    dag_no = data.get("dag_no", "810")
-    mouza = data.get("mouza", "জয়দেবপুর")
-    district = data.get("district", "গাজীপুর")
+    dag_no = data.get("dag_no", "").strip() if data.get("dag_no") else ""
+    mouza = data.get("mouza", "").strip()
+    district = data.get("district", "").strip()
     math_status = data.get("math_status", "AUTHENTIC_PERFECT")
 
     safety_report = verify_land_safety(dag_no=dag_no, mouza=mouza, district=district, math_status=math_status)

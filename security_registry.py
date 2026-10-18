@@ -125,8 +125,58 @@ def verify_land_safety(dag_no: str, mouza: str = "", district: str = "", math_st
     4. Land Development Tax (Khajna) Clearance
     """
     # Normalize Dag number
-    clean_dag = str(dag_no).replace("দাগ", "").replace("নং", "").strip()
+    clean_dag = str(dag_no or "").replace("দাগ", "").replace("নং", "").replace("-", "").strip()
     clean_dag = "".join({'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'}.get(c, c) for c in clean_dag)
+
+    # If Dag number could not be detected from blurred, faulty, or torn deed
+    if not clean_dag or clean_dag.lower() in ["0", "অজ্ঞাত", "তথ্যনেই", "নেই", "none", "null", "undefined", "cantfind", "--"]:
+        cert_hash = hashlib.sha256(f"UNDETECTED:{time.time()}".encode()).hexdigest().upper()
+        return {
+            "dag_no": "সনাক্ত করা যায়নি (Can't Find)",
+            "is_undetected": True,
+            "score": 0,
+            "score_bn": "০",
+            "rating_bn": "যাচাই অসম্ভব — দাগ/দলিল নম্বর সনাক্ত করা যায়নি (Can't Find)",
+            "badge_bg": "bg-slate-600",
+            "color_class": "text-slate-800 bg-slate-100 border-slate-300",
+            "recommendation_bn": "সতর্কতা: দলিল বা পরচাটি অস্পষ্ট, ছেঁড়া বা ত্রুটিপূর্ণ হওয়ায় দাগ নম্বর সনাক্ত করা সম্ভব হয়নি (Can't Find)। দাগ নম্বর ব্যতিরেকে সরকারি ১নং খাস, ব্যাংক বন্ধক, আদালতের নিষেধাজ্ঞা কিংবা খাজনা রেকর্ড অনুসন্ধান করা আইনত অসম্ভব। অনুগ্রহ করে স্পষ্ট স্ক্যান কপি আপলোড করুন অথবা দাগ নম্বরটি ইনপুট দিয়ে যাচাই করুন।",
+            "ownership_nature_bn": "অনির্ধারিত (দাগ নং অনুপস্থিত)",
+            "khas_record": {
+                "status_bn": "তথ্য সনাক্ত হয়নি (Can't Find)",
+                "details_bn": "দাগ নম্বর সনাক্ত না হওয়ায় সরকারি ১নং খাস বা অর্পিত সম্পত্তি যাচাই করা সম্ভব হয়নি।",
+                "is_safe": False,
+                "is_undetected": True
+            },
+            "bank_record": {
+                "status_bn": "তথ্য সনাক্ত হয়নি (Can't Find)",
+                "bank_name": "দাগ নম্বর ছাড়া কোনো ব্যাংক লিয়েন বা বন্ধক যাচাইযোগ্য নয়।",
+                "is_safe": False,
+                "is_undetected": True
+            },
+            "court_record": {
+                "status_bn": "তথ্য সনাক্ত হয়নি (Can't Find)",
+                "court_name": "দাগ নম্বর ছাড়া আদালতের দেওয়ানি মামলা ও স্থিতাবস্থা অনুসন্ধান সম্ভব নয়।",
+                "is_safe": False,
+                "is_undetected": True
+            },
+            "tax_record": {
+                "status_bn": "তথ্য সনাক্ত হয়নি (Can't Find)",
+                "receipt_no": "অনুপস্থিত",
+                "is_safe": False,
+                "is_undetected": True
+            },
+            "risk_factors": [
+                {
+                    "pillar": "দাগ নম্বর সনাক্তকরণ",
+                    "deduction": "যাচাই অসম্ভব",
+                    "severity": "HIGH",
+                    "title": "দাগ নম্বর সনাক্ত করা যায়নি (Can't Find)",
+                    "desc": "দলিলে দাগ নম্বর অস্পষ্ট বা ছেঁড়া থাকায় সরকারি রেকর্ড যাচাই স্থগিত রয়েছে।"
+                }
+            ],
+            "safety_points": [],
+            "verification_hash": cert_hash
+        }
 
     record = MOCK_SECURITY_REGISTRY.get(clean_dag, MOCK_SECURITY_REGISTRY["DEFAULT"])
 

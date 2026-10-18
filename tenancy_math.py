@@ -114,6 +114,26 @@ def audit_khatian_math(owners: List[Dict[str, Any]], total_area_decimals: float 
     discrepancy_ratio = discrepancy_tils / FULL_KHATIAN_TILS
     discrepancy_decimals = round(discrepancy_ratio * total_area_decimals, 4) if total_area_decimals > 0 else 0.0
 
+    # If no owners or shares could be read from blurry/torn document
+    if len(processed_owners) == 0:
+        return {
+            "status": "UNDETECTED_OR_EMPTY",
+            "status_bn": "তথ্য সনাক্ত করা যায়নি (Can't Find)",
+            "badge_color": "bg-slate-700",
+            "message_bn": "কাগজটি অত্যন্ত ঝাপসা, অস্পষ্ট বা ছেঁড়া হওয়ায় কোনো অংশীদারের হিস্যা সনাক্ত করা সম্ভব হয়নি (Can't Find)। অনুগ্রহ করে স্পষ্ট স্ক্যান কপি আপলোড করুন।",
+            "total_tils": 0.0,
+            "total_tils_bn": "০",
+            "full_khatian_tils": FULL_KHATIAN_TILS,
+            "full_khatian_tils_bn": to_bangla_digits(FULL_KHATIAN_TILS),
+            "discrepancy_tils": 0.0,
+            "discrepancy_tils_bn": "০",
+            "discrepancy_decimals": 0.0,
+            "discrepancy_decimals_bn": "০.০",
+            "total_area_decimals": total_area_decimals,
+            "total_area_decimals_bn": to_bangla_digits(total_area_decimals),
+            "owners": []
+        }
+
     # Classify verification outcome
     if abs(discrepancy_tils) < 0.1:
         status = "AUTHENTIC_PERFECT"

@@ -108,5 +108,16 @@ class TestPorchaLensEngine(unittest.TestCase):
         self.assertFalse(disputed["court_record"]["is_safe"])
         print(f"✓ Test 6 Passed: Safety scoring valid (Clean Dag 810: {clean['score']}/100, Disputed Dag 302: {disputed['score']}/100).")
 
+    def test_undetected_dag_safety_audit(self):
+        """Test that missing or unreadable dag number triggers Can't Find across all 4 pillars."""
+        undetected = verify_land_safety(dag_no="", math_status="UNDETECTED_OR_EMPTY")
+        self.assertEqual(undetected["score"], 0)
+        self.assertTrue(undetected["is_undetected"])
+        self.assertIn("Can't Find", undetected["khas_record"]["status_bn"])
+        self.assertIn("Can't Find", undetected["bank_record"]["status_bn"])
+        self.assertIn("Can't Find", undetected["court_record"]["status_bn"])
+        self.assertIn("Can't Find", undetected["tax_record"]["status_bn"])
+        print("✓ Test 7 Passed: Missing/blurry dag number properly triggers 'Can't Find' across all 4 security pillars.")
+
 if __name__ == "__main__":
     unittest.main()
