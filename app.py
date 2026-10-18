@@ -1,11 +1,12 @@
 """
 PorchaLens (পর্চালেন্স) - স্মার্ট ভূমি রেকর্ড ডিজিটাইজেশন ও গাণিতিক যাচাই প্ল্যাটফর্ম
-Bangladesh Government Land Ministry Theme (mutation.land.gov.bd style)
+Configured for local execution and Vercel Serverless deployment.
 """
 
 import os
 import io
 import time
+import base64
 import hashlib
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from vision_engine import extract_and_verify_khatian
@@ -15,8 +16,6 @@ from faraiz_engine import calculate_faraiz_distribution
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
-UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route("/")
 def home():
@@ -36,14 +35,12 @@ def process_upload():
     image_bytes = file.read()
     mime_type = file.mimetype or "image/jpeg"
 
-    filename = f"upload_{int(time.time())}_{file.filename}"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    with open(filepath, "wb") as f:
-        f.write(image_bytes)
-
+    # Process using Gemini Vision with model fallback & Tenancy Math Engine
     result = extract_and_verify_khatian(image_bytes, mime_type=mime_type, custom_api_key=custom_key)
     if result.get("success"):
-        result["image_url"] = f"/static/uploads/{filename}"
+        # Serverless-friendly data URL (no disk storage required)
+        b64_str = base64.b64encode(image_bytes).decode("utf-8")
+        result["image_url"] = f"data:{mime_type};base64,{b64_str}"
 
     return jsonify(result)
 
@@ -68,7 +65,8 @@ def process_sample():
 
     result = extract_and_verify_khatian(image_bytes, mime_type="image/jpeg", custom_api_key=custom_key)
     if result.get("success"):
-        result["image_url"] = f"/static/samples/{filename}"
+        b64_str = base64.b64encode(image_bytes).decode("utf-8")
+        result["image_url"] = f"data:image/jpeg;base64,{b64_str}"
 
     return jsonify(result)
 
@@ -123,7 +121,6 @@ def generate_certificate():
     data = request.json or {}
     metadata = data.get("metadata", {})
     math_audit = data.get("math_audit", {})
-    safety_report = data.get("safety_report", None)
 
     cert_raw = f"{metadata.get('khatian_no')}:{metadata.get('mouza')}:{math_audit.get('status')}:{time.time()}"
     cert_hash = hashlib.sha256(cert_raw.encode()).hexdigest().upper()
@@ -135,6 +132,9 @@ def generate_certificate():
         "issued_timestamp": time.strftime("%d-%m-%Y %H:%M:%S"),
         "cert_hash": cert_hash
     })
+
+# WSGI handler for Vercel
+app_handler = app
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
