@@ -1,7 +1,6 @@
 """
 Vision Engine (হস্তলিখিত খতিয়ান ও পরচা ভিশন এআই প্রসেসর)
-Uses Gemini 3.5 Flash Multimodal Vision API to parse handwritten & printed
-Bengali land tenancy records into structured data.
+Uses Gemini Vision API with automatic multi-model fallback to bypass 429 quota limits.
 """
 
 import os
@@ -11,8 +10,14 @@ import requests
 from typing import Dict, Any
 from tenancy_math import audit_khatian_math, to_english_digits
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6J6i-qxlF8lRmitO_V73zIH2MORZTG1McI-6YvWsECi6g")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={GEMINI_API_KEY}"
+DEFAULT_API_KEY = "AQ.Ab8RN6J6i-qxlF8lRmitO_V73zIH2MORZTG1McI-6YvWsECi6g"
+
+# Models ordered by quota availability and speed (Flash-Lite has higher free-tier quota)
+CANDIDATE_MODELS = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash"
+]
 
 VISION_SYSTEM_PROMPT = """
 You are an expert Bengali Land Records Paleographer and Cadastral Surveyor specializing in historical Bengal Tenancy Khatians (CS, SA, RS, and BS Porchas).
@@ -78,11 +83,12 @@ Return strictly a valid JSON object matching this schema without any markdown fo
 }
 """
 
-def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg") -> Dict[str, Any]:
+def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg", custom_api_key: str = None) -> Dict[str, Any]:
     """
-    Takes raw image bytes of a Khatian, performs multimodal vision extraction via Gemini 3.5 Flash,
-    and runs symbolic 16-Ana math verification.
+    Takes raw image bytes of a Khatian, performs multimodal vision extraction via Gemini API,
+    with automatic model fallback to avoid 429 quota exhaustion.
     """
+    api_key = custom_api_key or os.environ.get("GEMINI_API_KEY", DEFAULT_API_KEY)
     b64_image = base64.b64encode(image_bytes).decode("utf-8")
     
     payload = {
@@ -106,63 +112,73 @@ def extract_and_verify_khatian(image_bytes: bytes, mime_type: str = "image/jpeg"
         }
     }
 
-    try:
-        response = requests.post(GEMINI_URL, json=payload, timeout=45)
-        if response.status_code != 200:
-            return {
-                "success": False,
-                "error_bn": f"এআই ভিশন সার্ভিস ত্রুটি ({response.status_code}): {response.text[:200]}"
-            }
-        
-        resp_json = response.json()
-        raw_text = resp_json["candidates"][0]["content"]["parts"][0]["text"]
-        
-        # Parse JSON
-        parsed_data = json.loads(raw_text)
-        
-        # Clean numeric fields
-        try:
-            total_area = float(to_english_digits(parsed_data.get("total_area_decimals", 0.0)))
-        except (ValueError, TypeError):
-            total_area = 0.0
-            
-        parsed_data["total_area_decimals"] = total_area
-        
-        # Run Mathematical Verification Engine
-        math_audit = audit_khatian_math(
-            owners=parsed_data.get("owners", []),
-            total_area_decimals=total_area
-        )
-        
-        return {
-            "success": True,
-            "metadata": {
-                "khatian_type": parsed_data.get("khatian_type", "CS/SA"),
-                "district": parsed_data.get("district", "অজ্ঞাত"),
-                "upazila": parsed_data.get("upazila", "অজ্ঞাত"),
-                "mouza": parsed_data.get("mouza", "অজ্ঞাত"),
-                "jl_no": parsed_data.get("jl_no", ""),
-                "khatian_no": parsed_data.get("khatian_no", ""),
-                "dag_numbers": parsed_data.get("dag_numbers", []),
-                "land_class": parsed_data.get("land_class", "নাল"),
-                "confidence_score": parsed_data.get("confidence_score", 90),
-                "handwriting_quality": parsed_data.get("handwriting_quality", "স্বাভাবিক")
-            },
-            "math_audit": math_audit
-        }
+    last_error = ""
 
-    except requests.exceptions.Timeout:
-        return {
-            "success": False,
-            "error_bn": "ইমেজ প্রসেসিংয়ে অতিরিক্ত সময় লেগেছে। দয়া করে ইমেজ সাইজ ছোট করে পুনরায় চেষ্টা করুন।"
-        }
-    except json.JSONDecodeError as e:
-        return {
-            "success": False,
-            "error_bn": f"এআই আউটপুট পার্স করতে ব্যর্থ হয়েছে: {str(e)}"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error_bn": f"অপ্রত্যাশিত ত্রুটি ঘটেছে: {str(e)}"
-        }
+    # Iterate through models with fallback
+    for model_name in CANDIDATE_MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        try:
+            response = requests.post(url, json=payload, timeout=40)
+            
+            # If 429 rate-limited, silently fallback to the next model
+            if response.status_code == 429:
+                last_error = f"{model_name} মডেলের কোটা পূর্ণ (429 Rate Limit)"
+                continue
+                
+            if response.status_code != 200:
+                last_error = f"{model_name} ত্রুটি ({response.status_code}): {response.text[:150]}"
+                continue
+
+            resp_json = response.json()
+            raw_text = resp_json["candidates"][0]["content"]["parts"][0]["text"]
+            
+            # Parse JSON
+            parsed_data = json.loads(raw_text)
+            
+            # Clean numeric fields
+            try:
+                total_area = float(to_english_digits(parsed_data.get("total_area_decimals", 0.0)))
+            except (ValueError, TypeError):
+                total_area = 0.0
+                
+            parsed_data["total_area_decimals"] = total_area
+            
+            # Run Mathematical Verification Engine
+            math_audit = audit_khatian_math(
+                owners=parsed_data.get("owners", []),
+                total_area_decimals=total_area
+            )
+            
+            return {
+                "success": True,
+                "model_used": model_name,
+                "metadata": {
+                    "khatian_type": parsed_data.get("khatian_type", "CS/SA"),
+                    "district": parsed_data.get("district", "অজ্ঞাত"),
+                    "upazila": parsed_data.get("upazila", "অজ্ঞাত"),
+                    "mouza": parsed_data.get("mouza", "অজ্ঞাত"),
+                    "jl_no": parsed_data.get("jl_no", ""),
+                    "khatian_no": parsed_data.get("khatian_no", ""),
+                    "dag_numbers": parsed_data.get("dag_numbers", []),
+                    "land_class": parsed_data.get("land_class", "নাল"),
+                    "confidence_score": parsed_data.get("confidence_score", 92),
+                    "handwriting_quality": parsed_data.get("handwriting_quality", "স্বাভাবিক")
+                },
+                "math_audit": math_audit
+            }
+
+        except requests.exceptions.Timeout:
+            last_error = f"{model_name} টাইমআউট হয়েছে"
+            continue
+        except json.JSONDecodeError as e:
+            last_error = f"{model_name} আউটপুট পার্স করতে ব্যর্থ: {str(e)}"
+            continue
+        except Exception as e:
+            last_error = f"{model_name} ত্রুটি: {str(e)}"
+            continue
+
+    # If all models failed or were quota limited
+    return {
+        "success": False,
+        "error_bn": f"এআই সার্ভারের সকল মডেলের কোটা সাময়িকভাবে পূর্ণ ({last_error})। অনুগ্রহ করে ১ মিনিট পর আবার চেষ্টা করুন অথবা বিকল্প API কী ব্যবহার করুন।"
+    }

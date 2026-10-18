@@ -7,7 +7,7 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Hind Siliguri (Standard for Bangladesh Govt portals) -->
+  <!-- Google Fonts: Hind Siliguri -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,9 +27,6 @@
     .gov-gold {
       color: #f1a93b;
     }
-    .border-gov-gold {
-      border-color: #f1a93b;
-    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
@@ -46,11 +43,11 @@
     </div>
   </div>
 
-  <!-- MAIN GOVERNMENT HEADER (mutation.land.gov.bd style) -->
+  <!-- MAIN GOVERNMENT HEADER -->
   <header class="gov-green text-white shadow-md border-b-4 border-amber-500">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center space-x-3.5">
-        <!-- Bangladesh National Emblem SVG -->
+        <!-- National Emblem -->
         <div class="w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md">
           <svg viewBox="0 0 100 100" class="w-10 h-10">
             <circle cx="50" cy="50" r="46" fill="#006a4e" />
@@ -65,18 +62,24 @@
             স্মার্ট ভূমি রেকর্ড ও খতিয়ান যাচাই সিস্টেম
             <span class="ml-2.5 text-xs bg-amber-400 text-slate-900 px-2 py-0.5 rounded font-semibold">পর্চালেন্স ইঞ্জিন</span>
           </h1>
-          <p class="text-xs text-emerald-100 mt-0.5">পুরাতন হস্তলিখিত খতিয়ান (CS/SA/RS) ডিজিটাইজেশন ও ১৬ আনা গাণিতিক জালিয়াতি নিরোধক পোর্টাল</p>
+          <p class="text-xs text-emerald-100 mt-0.5">পুরাতন খতিয়ান ডিজিটাইজেশন, ১৬ আনা হিস্যা অডিট ও ৪-স্তরের ডিজিটাল নাগরিক সুরক্ষা</p>
         </div>
       </div>
 
-      <!-- PORTAL MODE SWITCHER -->
-      <div class="mt-3 sm:mt-0 flex items-center bg-emerald-900/60 p-1 rounded-lg border border-emerald-700/50">
-        <button id="btn-citizen-mode" onclick="switchMode('citizen')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition bg-white text-emerald-900 shadow">
-          <i class="fa-solid fa-user mr-1.5"></i> নাগরিক সেবা
+      <!-- PORTAL MODE & API KEY SETTINGS -->
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleApiKeyModal()" class="text-xs bg-emerald-800/80 hover:bg-emerald-800 text-amber-300 border border-emerald-600 px-3 py-1.5 rounded-lg flex items-center transition" title="API কী সেটিং">
+          <i class="fa-solid fa-key mr-1.5"></i> <span id="api-key-status">API প্রস্তুত</span>
         </button>
-        <button id="btn-acland-mode" onclick="switchMode('acland')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition text-emerald-100 hover:text-white">
-          <i class="fa-solid fa-building-columns mr-1.5"></i> এসি ল্যান্ড ও তহশিলদার
-        </button>
+
+        <div class="flex items-center bg-emerald-900/60 p-1 rounded-lg border border-emerald-700/50">
+          <button id="btn-citizen-mode" onclick="switchMode('citizen')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition bg-white text-emerald-900 shadow">
+            <i class="fa-solid fa-user mr-1.5"></i> নাগরিক সেবা
+          </button>
+          <button id="btn-acland-mode" onclick="switchMode('acland')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition text-emerald-100 hover:text-white">
+            <i class="fa-solid fa-building-columns mr-1.5"></i> এসি ল্যান্ড
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -86,7 +89,7 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center">
         <i class="fa-solid fa-bullhorn text-amber-600 mr-2"></i>
-        <span><strong>গুরুত্বপূর্ণ নির্দেশিকা:</strong> যেকোনো জীর্ণ বা হস্তলিখিত খতিয়ানের ছবি আপলোড করুন। ভিশন এআই স্বয়ংক্রিয়ভাবে খতিয়ানের সকল অংশীদার ও ১৬ আনা হিস্যার সঠিকতা নিরূপণ করবে।</span>
+        <span><strong>নাগরিক সতর্কতা:</strong> জমি কেনার পূর্বে খতিয়ানের ১৬ আনা হিস্যার পাশাপাশি সরকারি খাস, ব্যাংক বন্ধক ও আদালতের নিষেধাজ্ঞা যাচাই নিশ্চিত করুন।</span>
       </div>
       <span class="hidden md:inline font-semibold text-emerald-800">ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLRS)</span>
     </div>
@@ -141,16 +144,27 @@
           </div>
         </div>
         <div class="text-xs font-mono bg-emerald-800 px-3 py-1.5 rounded text-amber-300 border border-emerald-700">
-          Gemini 3.5 Flash Vision AI
+          Gemini 3.5 Flash-Lite / Fallback Engine
         </div>
+      </div>
+
+      <!-- ERROR MESSAGE CARD -->
+      <div id="error-card" class="hidden mt-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-xs flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-circle-exclamation text-red-600 text-lg"></i>
+          <span id="error-msg-text"></span>
+        </div>
+        <button onclick="document.getElementById('error-card').classList.add('hidden')" class="text-red-600 hover:text-red-900">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
     </div>
 
-    <!-- RESULTS SECTION (Initially hidden until processed) -->
+    <!-- RESULTS SECTION -->
     <div id="results-container" class="hidden space-y-6">
 
-      <!-- MATH AUDIT ALERT BANNER (CRITICAL STATUS) -->
+      <!-- MATH AUDIT ALERT BANNER -->
       <div id="math-alert-box" class="rounded-xl p-5 shadow-sm text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div class="flex items-start space-x-4">
           <div id="math-alert-icon" class="text-3xl mt-1">
@@ -167,10 +181,96 @@
         </button>
       </div>
 
+      <!-- CITIZEN 4-PILLAR DIGITAL LAND SAFETY SUITE -->
+      <div id="safety-suite-box" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6 space-y-4">
+        
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">নাগরিক ডিজিটাল ভূমি সুরক্ষা অডিট (৪-স্তরের যাচাই)</h3>
+              <p class="text-xs text-slate-500">সরকারি খাস, ব্যাংক বন্ধক, আদালতের স্থিতাবস্থা ও খাজনা বকেয়া এক ক্লিকে যাচাই</p>
+            </div>
+          </div>
+
+          <!-- SAFETY SCORE BADGE -->
+          <div class="flex items-center space-x-3">
+            <div class="text-right">
+              <div class="text-[11px] text-slate-400 font-semibold uppercase">ভূমি নিরাপত্তা স্কোর</div>
+              <div id="safety-score-rating" class="text-xs font-bold">যাচাই হচ্ছে...</div>
+            </div>
+            <div id="safety-score-pill" class="text-2xl font-extrabold px-3 py-1.5 rounded-xl text-white font-mono shadow-sm bg-emerald-600">
+              --
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 AUDIT PILLARS GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+          
+          <!-- Pillar 1: Khas & Vested -->
+          <div id="pillar-khas-card" class="p-3.5 rounded-xl border bg-slate-50 border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-landmark-dome mr-1.5 text-emerald-700"></i> সরকারি খাস স্বত্ব
+              </span>
+              <span id="pillar-khas-badge" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">যাচাইাধীন</span>
+            </div>
+            <p id="pillar-khas-text" class="text-[11px] text-slate-600 leading-snug">রেকর্ড অনুসন্ধান চলছে...</p>
+          </div>
+
+          <!-- Pillar 2: Bank Mortgage -->
+          <div id="pillar-bank-card" class="p-3.5 rounded-xl border bg-slate-50 border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-building-columns mr-1.5 text-blue-700"></i> ব্যাংক বন্ধক (NEC)
+              </span>
+              <span id="pillar-bank-badge" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">যাচাইাধীন</span>
+            </div>
+            <p id="pillar-bank-text" class="text-[11px] text-slate-600 leading-snug">আর্থিক লিয়েন অনুসন্ধান চলছে...</p>
+          </div>
+
+          <!-- Pillar 3: Court Injunction -->
+          <div id="pillar-court-card" class="p-3.5 rounded-xl border bg-slate-50 border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-gavel mr-1.5 text-purple-700"></i> আদালতের নিষেধাজ্ঞা
+              </span>
+              <span id="pillar-court-badge" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">যাচাইাধীন</span>
+            </div>
+            <p id="pillar-court-text" class="text-[11px] text-slate-600 leading-snug">দেওয়ানি মোকদ্দমা খতিয়ে দেখা হচ্ছে...</p>
+          </div>
+
+          <!-- Pillar 4: LD Tax Clearance -->
+          <div id="pillar-tax-card" class="p-3.5 rounded-xl border bg-slate-50 border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-receipt mr-1.5 text-amber-700"></i> ভূমি উন্নয়ন কর (খাজনা)
+              </span>
+              <span id="pillar-tax-badge" class="text-[10px] px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700">যাচাইাধীন</span>
+            </div>
+            <p id="pillar-tax-text" class="text-[11px] text-slate-600 leading-snug">দাখিলা রেকর্ড যাচাই চলছে...</p>
+          </div>
+
+        </div>
+
+        <!-- RISK & RECOMMENDATION BANNER -->
+        <div id="safety-recommendation-box" class="p-3 rounded-lg text-xs leading-relaxed border flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-circle-info text-base"></i>
+            <span id="safety-recommendation-text">নাগরিক পরামর্শ প্রস্তুত করা হচ্ছে...</span>
+          </div>
+          <button onclick="openCertificateModal()" class="text-[11px] underline font-bold whitespace-nowrap ml-2">অফিসিয়াল রিপোর্ট প্রিন্ট</button>
+        </div>
+
+      </div>
+
       <!-- SIDE-BY-SIDE INSPECTION PANE -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT COLUMN: ORIGINAL DOCUMENT IMAGE PREVIEW (5 Cols) -->
+        <!-- LEFT COLUMN: ORIGINAL DOCUMENT IMAGE PREVIEW -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
             <h3 class="text-sm font-bold text-slate-900 flex items-center">
@@ -186,15 +286,20 @@
           <p class="text-[11px] text-slate-500 mt-2 text-center">মাউস দিয়ে স্ক্রোল করে বড় আকারে খতিয়ানের হস্তলিপি পরীক্ষা করুন</p>
         </div>
 
-        <!-- RIGHT COLUMN: EXTRACTED DIGITAL RECORD & SHARE AUDIT (7 Cols) -->
+        <!-- RIGHT COLUMN: EXTRACTED DIGITAL RECORD & SHARE AUDIT -->
         <div class="lg:col-span-7 space-y-4">
 
           <!-- ADMINISTRATIVE METADATA CARD -->
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center mb-3 border-b border-slate-100 pb-2">
-              <i class="fa-solid fa-landmark text-emerald-700 mr-2"></i>
-              খতিয়ানের প্রশাসনিক তথ্যাবলী
-            </h3>
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center">
+                <i class="fa-solid fa-landmark text-emerald-700 mr-2"></i>
+                খতিয়ানের প্রশাসনিক তথ্যাবলী
+              </h3>
+              <span id="model-tag" class="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                Gemini 3.5 Flash-Lite
+              </span>
+            </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
@@ -232,19 +337,18 @@
             </div>
           </div>
 
-          <!-- CO-SHARERS TABLE & FRACTIONAL BREAKDOWN -->
+          <!-- CO-SHARERS TABLE WITH FARAIZ CALCULATOR BUTTON -->
           <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
               <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center">
                 <i class="fa-solid fa-users text-emerald-700 mr-2"></i>
-                অংশীদারগণের তালিকা ও আধুনিক জমিতে রূপান্তর (শতাংশ)
+                অংশীদারগণের তালিকা ও উত্তরাধিকার (ফারায়েজ) বিভাজন
               </h3>
               <button onclick="recalculateTableMath()" class="text-xs text-emerald-700 hover:text-emerald-900 font-semibold flex items-center">
                 <i class="fa-solid fa-rotate mr-1"></i> হিস্যা পরিবর্তন হলে পুনরায় হিসাব
               </button>
             </div>
 
-            <!-- RESPONSIVE TABLE -->
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs border-collapse">
                 <thead>
@@ -257,23 +361,24 @@
                     <th class="p-2.5 text-center font-bold">ক্রান্তি</th>
                     <th class="p-2.5 text-center font-bold">তিল</th>
                     <th class="p-2.5 text-right font-bold text-emerald-900">প্রাপ্ত জমি (শতাংশ)</th>
+                    <th class="p-2.5 text-center font-bold text-slate-600">উত্তরাধিকার</th>
                   </tr>
                 </thead>
                 <tbody id="owners-table-body" class="divide-y divide-slate-100">
-                  <!-- Populated via JavaScript -->
                 </tbody>
                 <tfoot class="bg-slate-50 font-bold border-t-2 border-slate-300">
                   <tr>
                     <td colspan="2" class="p-2.5 text-right text-slate-700">সর্বমোট হিসাব:</td>
                     <td colspan="5" id="total-shares-foot" class="p-2.5 text-center font-mono">--</td>
                     <td id="total-area-foot" class="p-2.5 text-right text-emerald-900 font-mono text-sm">--</td>
+                    <td></td>
                   </tr>
                 </tfoot>
               </table>
             </div>
 
             <div class="mt-3 p-3 bg-slate-50 rounded-lg text-[11px] text-slate-500 flex items-center justify-between border border-slate-200/60">
-              <span>* বাংলা হস্তলিপির আনা-গণ্ডা-কড়া-ক্রান্তি স্বয়ংক্রিয়ভাবে ৭৬,৮০০ তিল স্ট্যান্ডার্ডে রূপান্তর করা হয়েছে।</span>
+              <span>* যেকোনো অংশীদারের পাশে <strong>"ওয়ারিশান হিসাব"</strong> বাটনে ক্লিক করে বর্তমান জীবিত ওয়ারিশদের ফারায়েজ বের করুন।</span>
               <span class="text-emerald-800 font-semibold">১ আনা = ২০ গণ্ডা = ৮০ কড়া = ২৪০ ক্রান্তি = ৪৮০০ তিল</span>
             </div>
 
@@ -287,6 +392,118 @@
 
   </main>
 
+  <!-- FARAIZ INHERITANCE MODAL -->
+  <div id="faraiz-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative border-2 border-emerald-700">
+      <button onclick="closeFaraizModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 border-b border-slate-100 pb-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-sitemap"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900 flex items-center">
+            মুসলিম উত্তরাধিকার আইনানুযায়ী ওয়ারিশান হিস্যা বণ্টন (ফারায়েজ)
+          </h3>
+          <p class="text-xs text-slate-500">মৃত পূর্বপুরুষের মূল জমি বর্তমান জীবিত ওয়ারিশদের মাঝে স্বয়ংক্রিয় বণ্টন</p>
+        </div>
+      </div>
+
+      <!-- INPUT CONTROLS -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 space-y-3">
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-slate-600 font-semibold mb-1">মৃত পূর্বপুরুষের নাম:</label>
+            <input type="text" id="faraiz-deceased-name" class="w-full p-2 border border-slate-300 rounded font-semibold bg-white" readonly>
+          </div>
+          <div>
+            <label class="block text-slate-600 font-semibold mb-1">মোট রেখে যাওয়া জমি (শতাংশ):</label>
+            <input type="number" step="0.01" id="faraiz-ancestral-area" class="w-full p-2 border border-slate-300 rounded font-bold font-mono text-emerald-800 bg-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+          <div>
+            <label class="block text-slate-600 mb-1">স্ত্রী সংখ্যা:</label>
+            <input type="number" id="faraiz-wives" min="0" max="4" value="1" class="w-full p-1.5 border border-slate-300 rounded text-center font-bold">
+          </div>
+          <div>
+            <label class="block text-slate-600 mb-1">পুত্র সংখ্যা:</label>
+            <input type="number" id="faraiz-sons" min="0" max="20" value="2" class="w-full p-1.5 border border-slate-300 rounded text-center font-bold">
+          </div>
+          <div>
+            <label class="block text-slate-600 mb-1">কন্যা সংখ্যা:</label>
+            <input type="number" id="faraiz-daughters" min="0" max="20" value="1" class="w-full p-1.5 border border-slate-300 rounded text-center font-bold">
+          </div>
+          <div class="flex items-end pb-1 space-x-2">
+            <button onclick="calculateFaraizFromModal()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 rounded text-xs transition">
+              <i class="fa-solid fa-calculator mr-1"></i> হিসাব করুন
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FARAIZ RESULT TABLE -->
+      <div id="faraiz-result-container" class="space-y-3">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700">
+                <th class="p-2">ওয়ারিশ</th>
+                <th class="p-2">আইনগত নীতি</th>
+                <th class="p-2 text-center">শতকরা হিস্যা</th>
+                <th class="p-2 text-right text-emerald-900 font-bold">প্রাপ্ত জমি (শতাংশ)</th>
+              </tr>
+            </thead>
+            <tbody id="faraiz-result-tbody" class="divide-y divide-slate-100">
+            </tbody>
+          </table>
+        </div>
+
+        <div id="female-protection-alert" class="p-3 bg-pink-50 border border-pink-200 text-pink-900 rounded-lg text-xs flex items-center space-x-2">
+          <i class="fa-solid fa-shield-heart text-pink-600 text-lg"></i>
+          <span id="female-protection-text"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- API KEY MODAL -->
+  <div id="apikey-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl relative border-2 border-emerald-700">
+      <button onclick="toggleApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Google Gemini API কী সেটিংস</h3>
+          <p class="text-xs text-slate-500">কোটা সমস্যা এড়াতে আপনার নিজস্ব কী ব্যবহার করতে পারেন</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
+          <input type="password" id="custom-api-input" placeholder="AQ.Ab8RN..." class="w-full text-xs font-mono p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
+        </div>
+        <p class="text-[11px] text-slate-500">
+          * সিস্টেমে স্বয়ংক্রিয়ভাবে <strong>gemini-3.5-flash-lite</strong>, <strong>gemini-3.1-flash-lite</strong> এবং <strong>gemini-3.5-flash</strong> এর মধ্যে ফলব্যাক রয়েছে।
+        </p>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button onclick="toggleApiKeyModal()" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">বাতিল</button>
+          <button onclick="saveApiKey()" class="px-4 py-1.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg">সংরক্ষণ করুন</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- OFFICIAL CERTIFICATE MODAL -->
   <div id="cert-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl relative border-4 border-emerald-800">
@@ -295,7 +512,6 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- GOV CERTIFICATE HEADER -->
       <div class="text-center border-b-2 border-slate-200 pb-4 mb-4">
         <div class="w-12 h-12 mx-auto mb-1">
           <svg viewBox="0 0 100 100" class="w-12 h-12">
@@ -310,10 +526,8 @@
       </div>
 
       <div id="cert-content-body" class="space-y-4 text-xs text-slate-700">
-        <!-- Injected via JavaScript -->
       </div>
 
-      <!-- FOOTER WITH DIGITAL SEAL -->
       <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
         <div class="text-[11px] text-slate-500 font-mono" id="cert-hash-footer">
           ডিজিটাল স্বাক্ষর হ্যাশ: --
@@ -332,13 +546,42 @@
   <footer class="gov-green-dark text-white text-xs mt-12 py-6 border-t-2 border-amber-500">
     <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
       <p class="font-medium">পরিকল্পনা ও বাস্তবায়নে: ভূমি মন্ত্রণালয়, গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</p>
-      <p class="text-emerald-300 text-[11px]">সার্বিক সহযোগিতায়: এটুআই (a2i) ও ভূমি রেকর্ড এবং জরিপ অধিদপ্তর (DLRS) | পর্চালেন্স ভিশন এআই ইঞ্জিন v1.0</p>
+      <p class="text-emerald-300 text-[11px]">সার্বিক সহযোগিতায়: এটুআই (a2i) ও ভূমি রেকর্ড এবং জরিপ অধিদপ্তর (DLRS) | পর্চালেন্স ভিশন এআই ও সুরক্ষা ইঞ্জিন v1.2</p>
     </div>
   </footer>
 
   <!-- SCRIPT -->
   <script>
     let currentProcessedData = null;
+    let currentSafetyReport = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedKey = localStorage.getItem("porchalens_api_key");
+      if (savedKey) {
+        document.getElementById("custom-api-input").value = savedKey;
+        document.getElementById("api-key-status").innerText = "কাস্টম কী সক্রিয়";
+      }
+    });
+
+    function toggleApiKeyModal() {
+      document.getElementById("apikey-modal").classList.toggle("hidden");
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById("custom-api-input").value.trim();
+      if (key) {
+        localStorage.setItem("porchalens_api_key", key);
+        document.getElementById("api-key-status").innerText = "কাস্টম কী সক্রিয়";
+      } else {
+        localStorage.removeItem("porchalens_api_key");
+        document.getElementById("api-key-status").innerText = "ডিফল্ট কী সক্রিয়";
+      }
+      toggleApiKeyModal();
+    }
+
+    function getActiveApiKey() {
+      return localStorage.getItem("porchalens_api_key") || "";
+    }
 
     function switchMode(mode) {
       const btnCitizen = document.getElementById("btn-citizen-mode");
@@ -359,17 +602,19 @@
 
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("custom_api_key", getActiveApiKey());
 
       showLoader(true);
+      hideError();
       try {
         const res = await fetch("/api/process-upload", {
           method: "POST",
           body: formData
         });
         const data = await res.json();
-        renderResult(data);
+        await renderResult(data);
       } catch (err) {
-        alert("সার্ভার ত্রুটি: " + err.message);
+        showError("সার্ভার ত্রুটি: " + err.message);
       } finally {
         showLoader(false);
       }
@@ -377,16 +622,20 @@
 
     async function testSample(sampleType) {
       showLoader(true);
+      hideError();
       try {
         const res = await fetch("/api/process-sample", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sample_type: sampleType })
+          body: JSON.stringify({ 
+            sample_type: sampleType,
+            custom_api_key: getActiveApiKey()
+          })
         });
         const data = await res.json();
-        renderResult(data);
+        await renderResult(data);
       } catch (err) {
-        alert("সার্ভার ত্রুটি: " + err.message);
+        showError("সার্ভার ত্রুটি: " + err.message);
       } finally {
         showLoader(false);
       }
@@ -402,9 +651,19 @@
       }
     }
 
-    function renderResult(data) {
+    function showError(msg) {
+      const card = document.getElementById("error-card");
+      document.getElementById("error-msg-text").innerText = msg;
+      card.classList.remove("hidden");
+    }
+
+    function hideError() {
+      document.getElementById("error-card").classList.add("hidden");
+    }
+
+    async function renderResult(data) {
       if (!data.success) {
-        alert(data.error_bn || "খতিয়ান পার্সিং ব্যর্থ হয়েছে।");
+        showError(data.error_bn || "খতিয়ান পার্সিং ব্যর্থ হয়েছে।");
         return;
       }
 
@@ -412,10 +671,12 @@
       const meta = data.metadata;
       const audit = data.math_audit;
 
-      // Image Preview
+      if (data.model_used) {
+        document.getElementById("model-tag").innerText = `ইঞ্জিন: ${data.model_used}`;
+      }
+
       document.getElementById("doc-preview-img").src = data.image_url;
 
-      // Metadata
       document.getElementById("meta-type").innerText = meta.khatian_type;
       document.getElementById("meta-district").innerText = meta.district;
       document.getElementById("meta-upazila").innerText = meta.upazila;
@@ -443,11 +704,94 @@
         alertIcon.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-200"></i>`;
       }
 
+      // Run 4-Pillar Citizen Land Safety Audit
+      await runSafetyAudit(meta.dag_numbers, meta.mouza, meta.district, audit.status);
+
       // Render Owners Table
       renderOwnersTable(audit.owners, audit);
 
       document.getElementById("results-container").classList.remove("hidden");
       document.getElementById("results-container").scrollIntoView({ behavior: "smooth" });
+    }
+
+    async function runSafetyAudit(dagNumbers, mouza, district, mathStatus) {
+      const primaryDag = Array.isArray(dagNumbers) && dagNumbers.length > 0 ? dagNumbers[0] : (dagNumbers || "810");
+      try {
+        const res = await fetch("/api/verify-land-safety", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dag_no: primaryDag,
+            mouza: mouza,
+            district: district,
+            math_status: mathStatus
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentSafetyReport = data.safety_report;
+          renderSafetyPillars(currentSafetyReport);
+        }
+      } catch (e) {
+        console.error("Safety audit failed:", e);
+      }
+    }
+
+    function renderSafetyPillars(report) {
+      // Score pill
+      const pill = document.getElementById("safety-score-pill");
+      pill.innerText = `${report.score_bn}/১০০`;
+      pill.className = `text-2xl font-extrabold px-3.5 py-1.5 rounded-xl text-white font-mono shadow-sm ${report.badge_bg}`;
+      document.getElementById("safety-score-rating").innerText = report.rating_bn.split('—')[0];
+
+      // Recommendation
+      const recBox = document.getElementById("safety-recommendation-box");
+      recBox.className = `p-3 rounded-lg text-xs leading-relaxed border flex items-center justify-between ${report.color_class}`;
+      document.getElementById("safety-recommendation-text").innerHTML = `<strong>পরামর্শ:</strong> ${report.recommendation_bn}`;
+
+      // Pillar 1: Khas
+      const khasBadge = document.getElementById("pillar-khas-badge");
+      if (report.khas_record.is_safe) {
+        khasBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
+        khasBadge.innerText = "নিরাপদ";
+      } else {
+        khasBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-red-100 text-red-800 animate-pulse";
+        khasBadge.innerText = "ঝুঁকি";
+      }
+      document.getElementById("pillar-khas-text").innerText = report.khas_record.details_bn;
+
+      // Pillar 2: Bank Mortgage
+      const bankBadge = document.getElementById("pillar-bank-badge");
+      if (report.bank_record.is_safe) {
+        bankBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
+        bankBadge.innerText = "দায়মুক্ত";
+      } else {
+        bankBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-red-100 text-red-800 animate-pulse";
+        bankBadge.innerText = "বন্ধকযুক্ত";
+      }
+      document.getElementById("pillar-bank-text").innerText = report.bank_record.status_bn;
+
+      // Pillar 3: Court
+      const courtBadge = document.getElementById("pillar-court-badge");
+      if (report.court_record.is_safe) {
+        courtBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
+        courtBadge.innerText = "মামলামুক্ত";
+      } else {
+        courtBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-red-100 text-red-800 animate-pulse";
+        courtBadge.innerText = "স্থিতাবস্থা";
+      }
+      document.getElementById("pillar-court-text").innerText = report.court_record.status_bn;
+
+      // Pillar 4: Tax
+      const taxBadge = document.getElementById("pillar-tax-badge");
+      if (report.tax_record.is_safe) {
+        taxBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800";
+        taxBadge.innerText = "পরিশোধিত";
+      } else {
+        taxBadge.className = "text-[10px] px-2 py-0.5 rounded font-bold bg-amber-100 text-amber-800";
+        taxBadge.innerText = "বকেয়া";
+      }
+      document.getElementById("pillar-tax-text").innerText = report.tax_record.status_bn;
     }
 
     function renderOwnersTable(owners, audit) {
@@ -482,11 +826,15 @@
             ${o.calculated_decimals_bn} শতাংশ
             <span class="block text-[10px] text-slate-400 font-normal">(${o.share_percentage}%)</span>
           </td>
+          <td class="p-2.5 text-center">
+            <button onclick="openFaraizModal('${o.name.replace(/'/g, "\\'")}', ${o.calculated_decimals})" class="text-[11px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold px-2 py-1 rounded transition flex items-center justify-center mx-auto whitespace-nowrap">
+              <i class="fa-solid fa-sitemap mr-1 text-emerald-600"></i> ফারায়েজ
+            </button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Update foot totals
       document.getElementById("total-shares-foot").innerText = `মোট: ${audit.total_tils} তিল (নির্ধারিত: ৭৬,৮০০ তিল)`;
       document.getElementById("total-area-foot").innerText = `${audit.total_area_decimals_bn} শতাংশ`;
     }
@@ -514,8 +862,67 @@
       const data = await res.json();
       if (data.success) {
         currentProcessedData.math_audit = data.math_audit;
-        renderResult(currentProcessedData);
+        await renderResult(currentProcessedData);
       }
+    }
+
+    // FARAIZ MODAL LOGIC
+    function openFaraizModal(deceasedName, areaDecimals) {
+      document.getElementById("faraiz-deceased-name").value = deceasedName;
+      document.getElementById("faraiz-ancestral-area").value = areaDecimals;
+      calculateFaraizFromModal();
+      document.getElementById("faraiz-modal").classList.remove("hidden");
+    }
+
+    function closeFaraizModal() {
+      document.getElementById("faraiz-modal").classList.add("hidden");
+    }
+
+    async function calculateFaraizFromModal() {
+      const deceasedName = document.getElementById("faraiz-deceased-name").value;
+      const totalArea = parseFloat(document.getElementById("faraiz-ancestral-area").value) || 0;
+      const numWives = parseInt(document.getElementById("faraiz-wives").value) || 0;
+      const numSons = parseInt(document.getElementById("faraiz-sons").value) || 0;
+      const numDaughters = parseInt(document.getElementById("faraiz-daughters").value) || 0;
+
+      try {
+        const res = await fetch("/api/calculate-faraiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deceased_name: deceasedName,
+            total_area_decimals: totalArea,
+            num_wives: numWives,
+            num_sons: numSons,
+            num_daughters: numDaughters
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          renderFaraizResults(data.faraiz);
+        }
+      } catch (e) {
+        console.error("Faraiz calculation error:", e);
+      }
+    }
+
+    function renderFaraizResults(faraiz) {
+      const tbody = document.getElementById("faraiz-result-tbody");
+      tbody.innerHTML = "";
+
+      faraiz.heirs.forEach(h => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-100";
+        tr.innerHTML = `
+          <td class="p-2 font-bold text-slate-800">${h.relation_bn}</td>
+          <td class="p-2 text-slate-500">${h.quranic_rule}</td>
+          <td class="p-2 text-center font-mono font-medium">${h.share_percentage}%</td>
+          <td class="p-2 text-right font-bold text-emerald-800 font-mono text-sm">${h.allocated_decimals_bn} শতাংশ</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("female-protection-text").innerText = faraiz.female_protection.alert_bn;
     }
 
     async function openCertificateModal() {
@@ -533,6 +940,13 @@
 
       document.getElementById("cert-hash-footer").innerText = `ডিজিটাল সনদ হ্যাশ: ${cert.cert_hash.substring(0, 32)}...`;
 
+      const safetyBadgeHtml = currentSafetyReport ? `
+        <div class="p-2.5 rounded-lg border text-xs flex justify-between items-center ${currentSafetyReport.color_class}">
+          <span><strong>নাগরিক নিরাপত্তা রেটিং:</strong> ${currentSafetyReport.rating_bn}</span>
+          <span class="font-mono font-extrabold text-sm">${currentSafetyReport.score_bn}/১০০</span>
+        </div>
+      ` : '';
+
       document.getElementById("cert-content-body").innerHTML = `
         <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
           <div><span class="text-slate-500">সনদ নম্বর:</span> <strong class="text-emerald-900">${cert.certificate_id}</strong></div>
@@ -542,6 +956,8 @@
           <div><span class="text-slate-500">দাগ নম্বর:</span> <strong>${Array.isArray(meta.dag_numbers) ? meta.dag_numbers.join(', ') : meta.dag_numbers}</strong></div>
           <div><span class="text-slate-500">মোট জমির পরিমাণ:</span> <strong class="text-emerald-800">${audit.total_area_decimals_bn} শতাংশ</strong></div>
         </div>
+
+        ${safetyBadgeHtml}
 
         <div class="p-3 rounded-lg border ${audit.status === 'AUTHENTIC_PERFECT' ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-red-50 border-red-300 text-red-950'}">
           <div class="font-bold text-sm mb-1">${audit.status_bn}</div>
