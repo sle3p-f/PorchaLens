@@ -1,39 +1,42 @@
-# BhumiGraph — 90-Second Demo Video Script
+# PorchaLens — 90-Second Demo Video Script
 ### LandTech 2026 Innovation Hackathon (Round 1 Submission)
 *Target Duration: Exactly 85–90 seconds*  
-*Tone: Crisp, authoritative, highly technical, and solutions-oriented.*
+*Tone: Professional, urgent, high-energy, and solution-focused.*  
+*Language: Bengali with English key terms (or fully in English/Bengali as preferred).*
 
 ---
 
-### [00:00 – 00:15] Hook: The Core Bangladesh Dilemma
-- **Visual**: Screen shows the Bangladesh Land Administration dilemma diagram (Ministry of Law vs. Ministry of Land disconnect) or a shot of paper Balam books.
+### [00:00 – 00:15] Hook: The Decaying Paper Dilemma
+- **Screen View**: B-roll or photo of old, torn CS/SA Khatian manuscripts with archaic Bengali symbols (আনা-গণ্ডা-কড়া-ক্রান্তি).
 - **Voiceover**: 
-  > *"Over 75% of all civil litigation in Bangladesh stems from land fraud. Why? Because Sub-Registry offices register deeds without knowing if the seller's title is already depleted, if sisters were deprived of inheritance, or if a court injunction is active. We built BhumiGraph to fix this."*
+  > *"বাংলাদেশের ভূমি বিরোধের মূল কারণ হলো শতবর্ষী পুরনো হস্তলিখিত সি.এস. ও এস.এ. খতিয়ান। এই জীর্ণ দলিলগুলোতে লেখা আনা-গণ্ডা-কড়া-ক্রান্তির প্রাচীন হিসাব সাধারণ মানুষ বুঝতে পারে না, আর প্রচলিত OCR এগুলো পড়তে পারে না। ফলে সৃষ্টি হয় জালিয়াতি ও অন্তহীন মামলা। এর সমাধানে আমরা তৈরি করেছি **পর্চালেন্স (PorchaLens)**।"*
 
 ---
 
-### [00:15 – 00:35] Solution Introduction & Lineage Graph
-- **Visual**: Screen opens `http://127.0.0.1:5000`. Demonstrator selects *Joydebpur, Gazipur (BS Dag 810)*. The dynamic lineage graph animates from CS Dag 104 &rarr; SA 212 &rarr; RS 455 &rarr; BS 810, then expands into the Faraiz family tree.
+### [00:15 – 00:35] Live Vision-AI Extraction & Authentic 16-Ana Math
+- **Screen View**: Demonstrator opens `porchalens.vercel.app` (showing the authentic Government Land Ministry theme). Clicks **"খাঁটি খতিয়ান (১৬ আনা নির্ভুল)"** or drops an image.
+- **Visual**: The spinner runs for 2 seconds. The side-by-side view pops up! The original handwritten document appears on the left; the parsed digital table appears on the right. The top alert flashes deep green: **"সম্পূর্ণ নির্ভুল (১৬ আনা পূর্ণ)"**.
 - **Voiceover**: 
-  > *"BhumiGraph models land tenure as a mathematical Directed Acyclic Graph. Here, late Rahim Uddin left 20 decimals in Gazipur. Under Muslim Faraiz law, our engine automatically computes the legal shares: 8 decimals each for two sons, and 4 decimals for daughter Fatima."*
+  > *"পর্চালেন্সের মাল্টিমোডাল ভিশন এআই সেকেন্ডের মধ্যে হস্তলিপি পাঠোদ্ধার করে ডিজিটাল টেবিলে রূপান্তর করে। আর আমাদের ১৬ আনা গাণিতিক ইঞ্জিন সকল হিস্যাকে ৭৬,৮০০ তিল স্ট্যান্ডার্ডে হিসাব করে নিশ্চিত করে—খতিয়ানের সকল অংশীদারদের মোট জমি হুবহু ১৬ আনা পূর্ণ হয়েছে কি না।"*
 
 ---
 
-### [00:35 – 00:55] Live Fraud Test: Fractional Over-Selling & Sister Depletion
-- **Visual**: Demonstrator clicks **"1. Fractional Over-Selling"** on the left panel. The center console flashes bright red with `REJECTED: Fractional Over-Selling Fraud Detected`. The mathematical proof is displayed (-7 decimals deficit). Next, click **"2. Sister Disinheritance"**, showing the pink warning flagging the omission of Fatima Begum.
+### [00:35 – 00:55] Live Fraud Detection (Over-allocation Alteration)
+- **Screen View**: Demonstrator clicks **"জাল খতিয়ান (অতিরিক্ত হিস্যা)"**.
+- **Visual**: Alert banner immediately turns bright red: **"জালিয়াতি সনাক্ত! (অতিরিক্ত হিস্যা বণ্টন)"**. The message highlights that someone altered the share to 19 Anas 12 Gondas, illegally claiming an extra 4.5 decimals!
 - **Voiceover**: 
-  > *"Watch what happens when son Tariqul—who already sold 5 decimals in 2024—attempts to sell 10 decimals. Our Share-Conservation Protocol detects that only 3 decimals remain, calculates an illegal deficit of 7 decimals, and instantly blocks the Sub-Registrar! When brothers try to omit their sister from the Warishnama, BhumiGraph flags Faraiz fraud immediately."*
+  > *"এবার দেখুন যখন কেউ পুরোনো খতিয়ানে ঘষামাজা করে নিজের হিস্যা বাড়িয়ে নেয়—পর্চালেন্স তাৎক্ষণিকভাবে অতিরিক্ত ৪.৫ শতাংশ জমির গরমিল ধরে ফেলে এবং জালিয়াতির লাল সতর্কতা জারি করে। ফলে কোনো প্রতারক অন্যের জমি আত্মসাৎ করতে পারবে না।"*
 
 ---
 
-### [00:55 – 01:15] Inter-Registry Collision & Court Injunction
-- **Visual**: Click **"3. Court Injunction Violation"** (showing Dhaka Court Status Quo order block) and **"4. Inter-Registry Collision"** (showing the real-time distributed lock symbol on the graph).
+### [00:55 – 01:15] 4-Pillar Citizen Land Safety & Faraiz Inheritance
+- **Screen View**: Demonstrator scrolls down to the **"নাগরিক ডিজিটাল ভূমি সুরক্ষা অডিট"** showing the 4 cards (Khas, Bank Mortgage, Court Injunction, Tax) and the **ভূমি নিরাপত্তা স্কোর (100/100)**. Then clicks **"ফারায়েজ"** next to an owner's name. The inheritance modal pops up with 2 sons, 1 daughter, 1 wife, showing exact modern decimals and the female protection alert!
 - **Voiceover**: 
-  > *"BhumiGraph also bridges the 48-hour inter-registry loophole. When a deed is being processed at Gazipur Sub-Registry, an instant cryptographic lock is placed on the parcel, preventing simultaneous double-selling in other offices. It also halts sales of land under High Court Status Quo orders."*
+  > *"নাগরিকদের জন্য এতে রয়েছে ৪-স্তরের ডিজিটাল সুরক্ষা অডিট—যা দিয়ে জমি কেনার আগেই জানা যাবে এটি সরকারি খাস, ব্যাংকে বন্ধকযুক্ত বা মামলার অধীন কি না। আর ওয়ারিশান বাটনে ক্লিক করলেই মুসলিম পারিবারিক আইন অনুযায়ী বোন ও মায়েদের ন্যায্য হিস্যা সহ প্রত্যেকের পাওনা শতভাগ নিশ্চিত করা যায়।"*
 
 ---
 
-### [01:15 – 01:30] Clean Title & Citizen Due Diligence
-- **Visual**: Demonstrator selects *Dhanmondi BS 1104*, clicks **"5. Clean Title Verification"**. The badge lights up green `TRANSACTION APPROVED`. Click **"Title Certificate"** to show the cryptographic modal with SHA-256 hash and Land Health Score 100/100.
+### [01:15 – 01:30] Official Smart e-Porcha Certificate & Conclusion
+- **Screen View**: Demonstrator clicks **"স্মার্ট ই-খতিয়ান সনদ দেখুন"**. The official Bangladesh Government certificate appears with the national seal, QR code, and SHA-256 digital signature hash.
 - **Voiceover**: 
-  > *"For clean properties, BhumiGraph generates an instant SHA-256 cryptographic Title Certificate and feeds directly into e-Namjari. BhumiGraph: Turning Bangladesh’s opaque land records into mathematical truth. Thank you."*
+  > *"যাচাই শেষে এক ক্লিকে প্রস্তুত হয় কিউআর কোড ও ডিজিটাল সিলযুক্ত স্মার্ট ই-পর্চা সনদ। পর্চালেন্স: পুরোনো হস্তলিখিত রেকর্ড থেকে আধুনিক স্মার্ট ভূমি সেবার ডিজিটাল সেতুবন্ধন। ধন্যবাদ।"*

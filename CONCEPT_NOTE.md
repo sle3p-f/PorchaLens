@@ -1,39 +1,41 @@
 # LandTech 2026 Innovation Hackathon
 ## Track: Digital Land Records, Verification & Digitization
-### Project Title: **BhumiGraph (ভূমিগ্রাফ) — Graph-Theoretic Cadastral Lineage & Anti-Double-Selling Engine**
-**Problem Statement Addressed**: P3 (Catch Fraud & Double-Selling) & P4 (Smart e-Mutation & Registry)  
-**Target Beneficiaries**: Sub-Registry Offices, AC Land & Union Land Offices, Banks & Financial Institutions, Citizens & Buyers  
+### Project Title: **PorchaLens (পর্চালেন্স) — AI-Powered Handwritten Land Record Digitization & 16-Ana Fraud Audit Engine**
+**Problem Statements Addressed**: P1 (Digitize Old Records) & P2 (Verify Deeds & Ownership)  
+**Target Beneficiaries**: AC Land & Union Land Offices (Tahsil), Citizens & Buyers, Banks, Civil Courts  
 
 ---
 
 ### 1. The Chosen Problem
-In Bangladesh, land disputes account for **over 75% of all civil litigation**, clogging the judiciary with millions of Title and Partition suits that span generations. The fundamental vulnerability in the existing land governance ecosystem is that **land records are fragmented across two distinct ministries**:
-- **Ministry of Law (Sub-Registry Office)**: Registers private deeds (*Dalil*) without validating whether the seller's title is unencumbered or already depleted.
-- **Ministry of Land (AC Land & Tahsil Offices)**: Maintains mutations (*Namjari*), Khatians (RoR), and surveys.
-
-Because these databases do not interact via real-time mathematical validation, three catastrophic forms of fraud persist:
-1. **Fractional Over-Selling (Share Depletion Fraud)**: An owner inherits 8 decimals, previously sells 5 decimals, but later sells 10 decimals to an unsuspecting buyer by presenting outdated Khatians.
-2. **Female Heir Concealment (Faraiz Fraud)**: Male heirs forge or alter succession certificates (*Warishnama*), concealing sisters and daughters to illegally sell 100% of parental property.
-3. **Inter-Registry Double-Selling Window**: Because deed registration takes weeks to appear in physical Balam registers, fraudsters execute sales for the same plot in multiple Sub-Registry windows within the same 48 hours.
+In Bangladesh, historical land records—specifically **CS (Cadastral Survey, ~1920s)**, **SA (State Acquisition, ~1960s)**, and **RS (Revisional Survey, ~1980s)** Khatians and Porchas—form the foundational bedrock of all land titles. However:
+1. **Fragile, Decaying Manuscripts**: Millions of original Balam registers and Porchas in Upazila Record Rooms are brittle, torn, insect-damaged, and written in faded Bengali handwriting.
+2. **Archaic Fractional Land Notation**: Historical shares are not recorded in modern decimals; they use complex colonial Bengal tenancy notation:
+   $$\text{আনা (Ana)} \longrightarrow \text{গণ্ডা (Gonda)} \longrightarrow \text{কড়া (Kora)} \longrightarrow \text{ক্রান্তি (Kranti)} \longrightarrow \text{তিল (Til)}$$
+3. **Failure of Traditional OCR**: Conventional OCR engines (Tesseract, standard Abbyy) fail completely on cursive Bengali handwriting and non-standard layout grids, producing garbled text.
+4. **Fraud & Document Tampering**: Fraudsters alter ink strokes or add fabricated co-sharer entries. Because clerks manually copy records, these altered fractional entries go undetected, sparking protracted title lawsuits.
 
 ---
 
 ### 2. Why It Matters in Bangladesh
-- **Economic Deadweight**: Trillions of BDT in asset value remain locked in disputed, unbankable land.
-- **Social Violence & Court Congestion**: Rural violent crimes and murder disproportionately stem from contested plot boundaries and fractional usurpation.
-- **Bank Collateral Defaults**: Financial institutions disburse billions in mortgage loans against forged certified copies (*Nokol*) or land under active court injunctions (*Lis Pendens*).
-- **Deprivation of Women**: Millions of Bangladeshi women are unlawfully stripped of their statutory Quranic/Faraiz inheritance rights through co-sharer deception.
+- **Millions of Land Disputes**: Over 75% of civil litigation in Bangladesh begins with a disputed or altered historical Khatian entry.
+- **Citizen Exploitation**: Ordinary citizens cannot read archaic tenancy fractions, forcing them to rely on corrupt middlemen (*dalals*) who extort heavy fees to "explain" family Porchas.
+- **Female Disinheritance**: Female heirs (daughters and widows) are routinely omitted during manual copying of old records, permanently depriving them of statutory inheritance rights.
+- **Administrative Gridlock**: AC Land officers and Tahsildars spend weeks physically cross-referencing fragile paper books during e-Mutation inquiries.
 
 ---
 
-### 3. The Proposed Solution: BhumiGraph
-**BhumiGraph** is an intelligent, graph-theoretic title verification and fraud-prevention engine. Instead of treating land as static tabular rows in separate databases, BhumiGraph models land tenure as an **Immutable Directed Acyclic Graph (DAG)**:
-$$\text{CS Survey (1920s)} \longrightarrow \text{SA Survey (1960s)} \longrightarrow \text{RS Survey (1980s)} \longrightarrow \text{BS Survey (2010s)} \longrightarrow \text{Faraiz Splits} \longrightarrow \text{Mutated Deeds}$$
-
-Every owner node is governed by a strict mathematical **Share-Conservation Protocol**:
-$$\sum \text{Historical Outgoing Transfers} + \text{Proposed Transfer} \le \text{Acquired Legal Title}$$
-
-If an attempted transaction violates this inequality, or if a legal heir is missing, or if an active court injunction or bank mortgage exists, BhumiGraph triggers an **instant algorithmic hard-lock** that prevents deed registration.
+### 3. The Proposed Solution: PorchaLens (পর্চালেন্স)
+**PorchaLens** is an intelligent, dual-engine platform designed specifically for Bangladesh's land administration reality. It combines:
+1. **Multimodal Bengali Vision AI**: Transcribes cursive Bengali handwriting and archaic tenancy symbols directly from camera photos or scanned images into structured digital fields.
+2. **The "16-Ana" Mathematical Integrity Engine**: Encodes the historical legal rule of Bengal Tenancy:
+   $$\text{Total Khatian Share} = 16 \text{ Anas} = 320 \text{ Gondas} = 1,280 \text{ Koras} = 3,840 \text{ Krantis} = 76,800 \text{ Tils}$$
+   Instead of trusting raw pixels alone, the engine converts every co-sharer's share into normalized **Tils** and validates:
+   $$\sum \text{Tils} \stackrel{?}{=} 76,800$$
+   * If $\sum > 76,800$: **Fraud Alert (Over-allocation & Tampering Detected)**.
+   * If $\sum < 76,800$: **Torn Margin or Concealed Co-sharer Detected**.
+   * If $\sum == 76,800$: **Authentic 16-Ana Record Verified**.
+3. **Citizen Pre-Purchase Protection**: Integrates a 4-pillar digital verification suite (Khas/Vested land, Bank Mortgage, Court Injunction, Tax arrears) with a composite **0–100 Land Safety Score**.
+4. **Automated Faraiz Inheritance Tree**: Converts ancestral shares into exact modern decimals for surviving heirs under the Muslim Family Laws Ordinance 1961.
 
 ---
 
@@ -41,70 +43,77 @@ If an attempted transaction violates this inequality, or if a legal heir is miss
 
 ```
 +-----------------------------------------------------------------------------------+
-|                        BHUMIGRAPH SYSTEM ARCHITECTURE                             |
+|                        PORCHALENS SYSTEM ARCHITECTURE                             |
 +-----------------------------------------------------------------------------------+
 
-   [ Sub-Registry Office ]       [ AC Land / e-Namjari ]      [ Citizen / Bank Portal ]
-         |                                  |                           |
-         +----------------------------------+---------------------------+
-                                            |
-                                            v
-                                 [ REST API Gateway ]
-                                            |
-         +----------------------------------+-----------------------------------+
-         |                                  |                                   |
-         v                                  v                                   v
-[ Layer 1: Distributed Lock ]     [ Layer 2: Graph Engine ]     [ Layer 3: Risk Engine ]
- • Real-time 24hr Token Lock       • Cadastral Lineage DAG        • Land Health Score (0-100)
- • Inter-Registry Collision        • Share-Conservation Protocol • Lis Pendens / Injunction
-   Prevention                      • Faraiz Succession Validator • Tax Clearance Auditing
-         |                                  |                                   |
-         +----------------------------------+-----------------------------------+
-                                            |
-                                            v
-                              [ Cryptographic Trust Layer ]
-                     • SHA-256 Title Hash & Verifiable QR Code
-                     • Direct API Webhook triggering instant e-Mutation
+     [ Citizen Smartphone Photo ]            [ AC Land / Record Room Scan ]
+                  │                                         │
+                  └────────────────────┬────────────────────┘
+                                       │
+                                       ▼
+                     [ Secure Web Gateway / REST API ]
+                                       │
+                                       ▼
+     ┌───────────────────────────────────────────────────────────────────┐
+     │ LAYER 1: Multimodal Vision OCR Engine                             │
+     │ • Auto-fallback: Gemini 3.5 Flash-Lite -> 3.1 Flash-Lite -> Flash │
+     │ • Structured JSON extraction: Administrative + Co-Sharers         │
+     └─────────────────────────────────┬─────────────────────────────────┘
+                                       │
+                                       ▼
+     ┌───────────────────────────────────────────────────────────────────┐
+     │ LAYER 2: 16-Ana Tenancy Math Engine                               │
+     │ • Normalizes: Ana*4800 + Gonda*240 + Kora*60 + Kranti*20 + Til    │
+     │ • Validates: Sum(Tils) == 76,800 (16-Ana Share Conservation)      │
+     │ • Calculates: Exact modern Decimals (শতাংশ) per owner              │
+     └─────────────────────────────────┬─────────────────────────────────┘
+                                       │
+                                       ▼
+     ┌───────────────────────────────────────────────────────────────────┐
+     │ LAYER 3: Citizen Protection & Succession Layer                    │
+     │ • 4-Pillar Digital Safety Audit (Khas, Mortgage, Court, Tax)      │
+     │ • Muslim Succession Engine (Quranic fixed shares + 2:1 residue)   │
+     │ • Official Printable e-Porcha with SHA-256 seal & QR code         │
+     └───────────────────────────────────────────────────────────────────┘
 ```
 
-#### Technology Stack:
-- **Core Verification & Graph Engine**: Python 3.15, Network Graph Traversals, Symbolic Logic Constraints.
-- **RESTful API Backend**: Flask / WSGI Micro-framework.
-- **Frontend & Visualization**: Modern HTML5, Tailwind CSS, **Vis.js Network Engine** (interactive force-directed hierarchical graph layout).
-- **Cryptographic Hashing**: SHA-256 digital deed fingerprints and state-sealed verification certificates.
-- **Data Compliance**: 100% synthetic/dummy datasets representing authentic Bangladeshi Mouza geographies (Joydebpur, Savar, Dhanmondi) adhering strictly to LandTech 2026 data ethics.
+#### Tech Stack:
+- **Backend**: Python 3.15, Flask WSGI framework.
+- **Vision AI**: Google Gemini Multimodal Vision API (`gemini-3.5-flash-lite` with automatic rate-limit fallback).
+- **Math & Logic**: Pure Python symbolic tenancy unit converter and Faraiz algorithm.
+- **Frontend**: Responsive HTML5, Tailwind CSS, Google Hind Siliguri font, styled after `mutation.land.gov.bd`.
+- **Deployment**: Vercel Serverless Functions ([porchalens.vercel.app](https://porchalens.vercel.app)).
 
 ---
 
 ### 5. Main Features & Innovations
 
-1. **Automated Share-Conservation Protocol**:
-   Tracks every decimal ever transferred from an ancestor's plot. Eliminates over-selling and dual-selling with mathematical certainty.
-2. **Automated Faraiz Inheritance Integrity Validator**:
-   Encodes Bangladesh Muslim Succession Law (Quranic fixed shares for wives, daughters, sons, residuaries). Detects omitted female heirs and blocks transactions until legal shares are settled.
-3. **Real-Time Inter-Office Distributed Locking**:
-   When a deed token is generated at any Sub-Registry, a 24-hour digital lien is created on the parcel. Any simultaneous sale attempt across other sub-registries or branches is instantly blocked.
-4. **Court Injunction & Bank Lien Integration (*Lis Pendens*)**:
-   Directly flags High Court Status Quo orders and undischarged bank mortgages on the parcel DAG.
-5. **Citizen Land Health Index (0 – 100)**:
-   A single-click pre-purchase "credit score" for land, empowering buyers to verify title health before paying token money.
-6. **Instant Cryptographic Title Certificate**:
-   Generates a tamper-evident digital title certificate equipped with a SHA-256 hash and verifiable audit trail.
+1. **Self-Correcting 16-Ana Mathematical Engine**:
+   Transforms archaic colonial fractions into mathematically verifiable truths, instantly catching forged entries where someone altered an ink stroke to claim excess land.
+2. **Instant Decimal (শতাংশ) Conversion**:
+   Automatically calculates the exact decimal land area each co-sharer owns, eliminating reliance on brokers.
+3. **Human-in-the-Loop Editable Table**:
+   If a fragile document has an ink smear, officers can correct individual cells on-screen and click "Recalculate" to watch the 76,800-Til balance adjust in real-time.
+4. **4-Pillar Digital Land Safety Score (0–100)**:
+   Empowers citizens to check if a plot is state Khas land, mortgaged to a bank, or tied up in a High Court Status Quo order before paying token money.
+5. **Female Heir Rights Protection**:
+   The Faraiz engine automatically reserves daughters' and widows' shares and displays a legal protection alert against male co-sharer usurpation.
+6. **Smart Digital e-Porcha Certificate**:
+   Generates a print-ready, government-watermarked certified record with a cryptographic hash and QR code for instant offline verification.
 
 ---
 
-### 6. Nationwide Scalability & E-Governance Integration
-BhumiGraph is designed for seamless progressive rollout in Bangladesh's e-governance framework:
-- **Phase 1 (API Bridge)**: Connects as an autonomous middleware between the **Ministry of Land's e-Namjari / e-Khatian APIs** and the **Directorate of Registration’s e-Registration system**.
-- **Phase 2 (Sub-Registry Gatekeeper)**: Deployed at Sub-Registry desks as a mandatory pre-registration check before printing deed stamps.
-- **Phase 3 (Financial Sector API)**: Integrated into Bangladesh Bank’s CIB and commercial bank loan portals for instant collateral verification.
-- **Phase 4 (Judiciary Portal)**: Court benches query parcel lineages in seconds, reducing 20-year title suits to days.
+### 6. Nationwide Scalability & E-Governance Roadmap
+
+- **Phase 1 (Record Room Pilot)**: Deployed across Upazila Land Offices to batch-digitize decaying CS/SA Khatians before the paper disintegrates.
+- **Phase 2 (e-Namjari API Bridge)**: Integrated into the Ministry of Land's e-Mutation system to auto-verify submitted historical Porchas during field inquiries.
+- **Phase 3 (Citizen Land Portal)**: Embedded into the national land portal (`land.gov.bd`) allowing 170 million citizens to upload ancestral Porchas from their phones and verify legal shares.
 
 ---
 
-### 7. Team & Mentors (LandTech 2026)
+### 7. Team & Mentorship (LandTech 2026)
 
-- **Student Leader (DIU)**: [Student Name, DIU ID]  
-- **Student Member (DIU)**: [Student Name, DIU ID]  
-- **Faculty Mentor**: [Faculty Name, Department of CSE / Law, DIU]  
-- **Industry Mentor**: [Industry Expert Name, Organization / Land-Tech Specialist]  
+- **Team Leader (DIU)**: [Student Name, DIU ID]  
+- **Co-Developer (DIU)**: [Student Name, DIU ID]  
+- **Faculty Mentor**: [Faculty Name, Department of CSE / Law, Daffodil International University]  
+- **Industry Mentor**: [Industry Expert Name, Land-Tech Specialist]  

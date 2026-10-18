@@ -1,81 +1,90 @@
-# BhumiGraph — Final Round Pitch Deck Structure (10 Slides)
+# PorchaLens — Final Round Pitch Deck Structure (10 Slides)
 ### LandTech 2026 Innovation Hackathon
 *Knowledge Tower (Library), Daffodil International University*  
 *Presentation Time: 5 Minutes Pitch & Live Demo | 3 Minutes Q&A*
 
 ---
 
-### Slide 1: Title & Team
-- **Header**: **BhumiGraph (ভূমিগ্রাফ)**
-- **Subtitle**: Graph-Theoretic Cadastral Lineage & Anti-Double-Selling Engine
-- **Track**: Digital Land Records, Verification & Digitization
+### Slide 1: Title & Identity
+- **Header**: **PorchaLens (পর্চালেন্স)**
+- **Subtitle**: AI-Powered Handwritten Bengali Land Record Digitization & 16-Ana Fraud Audit Engine
+- **Track**: Digital Land Records, Verification & Digitization (P1 & P2)
 - **Team**: 2 DIU Students + 1 Faculty Mentor + 1 Industry Mentor
 - **Institution**: Department of CSE & Department of Law, Daffodil International University
+- **Live URL**: `https://porchalens.vercel.app`
 
 ---
 
-### Slide 2: The National Crisis: The Broken Land Administration
-- **Statistics**: 75–80% of all civil cases in Bangladesh courts are land title disputes.
-- **The Core Bottleneck**: The Dual-Ministry Silo.
-  - Ministry of Law (Sub-Registry) registers private deeds (*Dalil*) without verifying title.
-  - Ministry of Land (AC Land / DLRS) tracks Khatians and Surveys.
-- **Result**: The same plot is fractionalized, over-sold, and disputed across generations.
+### Slide 2: The Ground Reality in Bangladesh
+- **The Physical Crisis**: Millions of century-old CS & SA Khatians are rotting in Upazila Record Rooms.
+- **The Linguistic Barrier**: Handwritten in cursive Bengali and archaic tenancy units:
+  $$\text{আনা (Ana)} \longrightarrow \text{গণ্ডা (Gonda)} \longrightarrow \text{কড়া (Kora)} \longrightarrow \text{ক্রান্তি (Kranti)} \longrightarrow \text{তিল (Til)}$$
+- **The Legal Fallout**: Over 75% of civil court disputes stem from altered, misread, or forged historical Porcha entries.
 
 ---
 
-### Slide 3: The 3 Main Land Frauds in Bangladesh
-1. **Fractional Over-Selling**: Selling 10 decimals when only 3 decimals remain in the inherited share.
-2. **Female Heir Disinheritance (Faraiz Fraud)**: Forging Warishnama certificates to omit sisters/mothers.
-3. **Inter-Registry 48-Hour Double-Sale Window**: Selling the same plot across two sub-districts before physical Balam books are updated.
+### Slide 3: Why Existing Solutions Fail
+- **Standard OCR is Blind to Bengali Manuscripts**: Tesseract and generic cloud OCR cannot read century-old cursive Bengali calligraphy or colonial tabular borders.
+- **Zero Mathematical Verification**: Existing scanning initiatives merely create "dumb PDFs." They cannot tell if the co-sharer entries add up or if a fraudster added extra decimals.
+- **The Middleman Trap**: Ordinary citizens cannot read old fractions, forcing them into the hands of exploitative brokers.
 
 ---
 
-### Slide 4: Our Solution: BhumiGraph
-- Models land tenure not as flat text, but as an **Immutable Directed Acyclic Graph (DAG)**:
-  $$\text{CS Survey} \longrightarrow \text{SA} \longrightarrow \text{RS} \longrightarrow \text{BS} \longrightarrow \text{Faraiz Splits} \longrightarrow \text{Mutations}$$
-- Turns land verification into **algorithmic certainty** rather than manual discretion.
+### Slide 4: Our Innovation: PorchaLens
+- **Dual-Engine Architecture**:
+  1. **Multimodal Bengali Vision AI**: Directly extracts cursive Bengali handwriting and archaic tenancy symbols into structured digital fields.
+  2. **16-Ana Symbolic Tenancy Math Engine**: Encodes the foundational legal constraint of Bengal Tenancy ($16 \text{ Anas} = 76,800 \text{ Tils}$).
+- **Instant Modernization**: Automatically converts archaic fractions into modern **শতাংশ (Decimals)** and square feet.
 
 ---
 
-### Slide 5: The Core Innovation: Share-Conservation Protocol
-- Mathematical constraint applied to every parcel:
-  $$\sum \text{Historical Outgoing Transfers} + \text{Proposed Transfer} \le \text{Acquired Legal Title}$$
-- Dynamic title balance tracking stops over-selling at the Sub-Registry desk before paper stamps are printed.
+### Slide 5: The Math Behind Fraud Detection
+- **The 76,800-Til Conservation Rule**:
+  $$\text{Tils} = (\text{Ana} \times 4,800) + (\text{Gonda} \times 240) + (\text{Kora} \times 60) + (\text{Kranti} \times 20) + \text{Til}$$
+- **Verification Outcomes**:
+  - $\sum = 76,800$: **Authentic 16-Ana Record** (Green).
+  - $\sum > 76,800$: **Fraud Alert / Illegal Over-Allocation** (Red) — highlights the exact excess decimals claimed.
+  - $\sum < 76,800$: **Torn Margin / Omitted Co-sharer** (Amber).
 
 ---
 
-### Slide 6: Automated Faraiz (Succession) Integrity Engine
-- Fully automated algorithmic model of Bangladesh Muslim Succession Law (Quranic fixed shares).
-- Cross-references submitted succession claims (*Warishnama*) with official civil records.
-- Blocks transactions if female heirs (daughters, wives, mothers) are concealed or usurped.
+### Slide 6: 4-Pillar Citizen Land Safety Suite
+Before buying or mutating land, citizens run a single-click pre-purchase audit:
+1. **🏛️ সরকারি ১নং খাস ও অর্পিত সম্পত্তি**: Verifies if the plot is government property.
+2. **🏦 ব্যাংক বন্ধক ও দায়মুক্তি (NEC)**: Checks for active bank loans or mortgages.
+3. **⚖️ দেওয়ানি আদালতের মামলা ও স্থিতাবস্থা**: Enforces Section 52 Transfer of Property Act (*Lis Pendens*).
+4. **🧾 ভূমি উন্নয়ন কর (খাজনা)**: Verifies tax clearance and arrears.
+- **Composite Land Safety Score (0 – 100)**: Instant green/yellow/red risk meter.
 
 ---
 
-### Slide 7: Real-Time Inter-Registry Distributed Locking & Lis Pendens
-- **Distributed Token Lock**: When Deed processing starts in one Sub-Registry, a 24-hour cryptographic lock prevents concurrent registration anywhere else in Bangladesh.
-- **Judicial Lis Pendens**: Live sync with Court registries blocks transactions on plots subject to High Court Status Quo orders or active bank mortgages.
+### Slide 7: Automated Faraiz (Succession) Engine
+- **Legal Compliance**: Encodes the **Muslim Family Laws Ordinance 1961**.
+- **Instant Inheritance Tree**: Breaks down an ancestor's extracted land among surviving wives, sons, and daughters in exact modern decimals.
+- **Female Heir Rights Protection**: Automatically reserves daughters' and widows' legal shares, issuing an explicit red alert against male co-sharer usurpation.
 
 ---
 
-### Slide 8: Live Demo & Architecture (Live Software Showcase)
-*(Switch to live demo running on `http://127.0.0.1:5000`)*
-- Demo 1: Fractional Over-Selling attempt blocked (-7 decimals deficit).
-- Demo 2: Sister disinheritance caught.
-- Demo 3: Clean Dhanmondi title certified with SHA-256 hash & 100/100 Land Health Score.
+### Slide 8: Live Demonstration (Showcasing porchalens.vercel.app)
+*(Live on-screen demonstration for the Judges)*
+- **Demo 1**: Real-time extraction of an authentic CS Khatian &rarr; 16-Ana green seal &rarr; Instant decimal breakdown.
+- **Demo 2**: Fraud sample &rarr; Immediate red alert catching an illegal 4.5 decimal inflation.
+- **Demo 3**: Click "ফারায়েজ" &rarr; Instant inheritance split protecting female heirs.
+- **Demo 4**: Official Smart e-Porcha certificate generation with SHA-256 seal.
 
 ---
 
-### Slide 9: National Scalability & E-Governance Integration
-- **Zero Heavy Infrastructure Required**: Lightweight REST APIs that plug directly into existing government portals:
-  - Ministry of Land: `e-Namjari` and `e-Khatian`
-  - Ministry of Law: `e-Registration`
-  - Financial Sector: Bangladesh Bank CIB and commercial bank collateral portals.
-- Modular, privacy-preserving, and cloud-ready.
+### Slide 9: National Scalability & E-Governance Fit
+- **Designed for the Land Ministry**: Follows the exact UI and design system of `mutation.land.gov.bd`.
+- **Progressive Rollout**:
+  - **Record Room Modernization**: Fast batch-scanning for Upazila Land Offices.
+  - **e-Namjari Verification**: Direct API bridge for Tahsildars during mutation hearings.
+  - **Citizen Self-Service**: Mobile web app accessible to 170 million citizens.
 
 ---
 
-### Slide 10: Conclusion & Vision
-- **From Deed Registration to State-Guaranteed Title (Torrens Model)**.
-- Restoring peace of mind to 170 million citizens, unlocking billions in dead capital, and decluttering our judicial system.
-- **BhumiGraph**: *Where Law Meets Code for Smart E-Governance.*
-- **Q&A**: Ready for the Judges' questions!
+### Slide 10: Conclusion & Impact
+- **From Decaying Paper to Mathematical Truth**: Preserving Bangladesh's historical land heritage before the paper crumbles.
+- **Slashing Civil Litigation**: Stopping forged Khatians before they ever reach the sub-registry or courts.
+- **PorchaLens**: *Where Heritage Meets Artificial Intelligence.*
+- **Ready for Questions (Q&A)**!
