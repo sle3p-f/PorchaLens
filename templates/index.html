@@ -1,751 +1,563 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BhumiGraph (ভূমিগ্রাফ) | LandTech 2026</title>
+  <title>স্মার্ট ভূমি রেকর্ড ও খতিয়ান যাচাই সিস্টেম | ভূমি মন্ত্রণালয়</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Vis.js Network for interactive graph -->
-  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <!-- Google Fonts: Hind Siliguri (Standard for Bangladesh Govt portals) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    #network-container {
-      width: 100%;
-      height: 520px;
-      background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
-      border-radius: 0.75rem;
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
     }
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
+    .gov-green {
+      background-color: #006a4e;
     }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background-color: #334155;
-      border-radius: 4px;
+    .gov-green-dark {
+      background-color: #004d38;
+    }
+    .gov-gold {
+      color: #f1a93b;
+    }
+    .border-gov-gold {
+      border-color: #f1a93b;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- TOP HEADER -->
-  <header class="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between sticky top-0 z-50 shadow-lg">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-        <i class="fa-solid fa-draw-polygon text-white text-xl"></i>
-      </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="text-xl font-bold tracking-tight text-white">BhumiGraph <span class="text-emerald-400 font-semibold">(ভূমিগ্রাফ)</span></h1>
-          <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-mono px-2 py-0.5 rounded-full">v1.0 Pro</span>
-        </div>
-        <p class="text-xs text-slate-400">Graph-Theoretic Cadastral Lineage & Anti-Double-Selling Engine</p>
-      </div>
+  <!-- TOP BANGLADESH GOV BANNER -->
+  <div class="gov-green-dark text-white text-xs py-1.5 px-4 md:px-12 flex justify-between items-center border-b border-emerald-900/60">
+    <div class="flex items-center space-x-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 mr-1"></span>
+      <span class="font-medium tracking-wide">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার | ভূমি মন্ত্রণালয়</span>
     </div>
-
-    <!-- HACKATHON BADGE -->
-    <div class="flex items-center space-x-4">
-      <div class="hidden md:flex flex-col text-right">
-        <span class="text-xs font-semibold text-slate-300">LandTech 2026 Innovation Hackathon</span>
-        <span class="text-xs text-slate-500">Track: Digital Land Records, Verification & Digitization</span>
-      </div>
-      <button onclick="openCertificateModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-3.5 py-2 rounded-lg flex items-center space-x-2 transition shadow-md shadow-emerald-600/20">
-        <i class="fa-solid fa-file-shield"></i>
-        <span>Title Certificate</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN APP CONTAINER -->
-  <main class="flex-1 p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1680px] w-full mx-auto">
-    
-    <!-- LEFT SIDEBAR: PARCELS & SCENARIO CONTROLS (3 Cols) -->
-    <section class="lg:col-span-3 flex flex-col space-y-4">
-      
-      <!-- PARCEL SELECTOR -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center justify-between mb-2">
-          <span><i class="fa-solid fa-map-location-dot text-emerald-400 mr-1.5"></i> Select Demo Parcel</span>
-          <span class="text-[10px] text-slate-500 font-normal">Synthetic Mock Data</span>
-        </label>
-        <select id="parcel-select" onchange="onParcelChanged()" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 focus:outline-none focus:border-emerald-500 transition">
-          <option value="BS-810">Joydebpur, Gazipur (BS Dag 810) - Inheritance Case</option>
-          <option value="BS-302">Savar, Dhaka (BS Dag 302) - Injunction / Mortgage</option>
-          <option value="BS-1104">Dhanmondi, Dhaka (BS Dag 1104) - Clean Title</option>
-        </select>
-        
-        <div id="parcel-quick-info" class="mt-3 pt-3 border-t border-slate-800/80 text-xs space-y-1.5 text-slate-400">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- JUDGES DEMO SCENARIOS -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex-1 flex flex-col">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center">
-            <i class="fa-solid fa-flask-vial mr-2"></i> Fraud Test Suite (Judges)
-          </h2>
-          <span class="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded">1-Click Tests</span>
-        </div>
-
-        <div class="space-y-2.5 flex-1">
-          <!-- Scenario 1 -->
-          <button onclick="runScenario1()" class="w-full text-left p-3 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-red-500/50 transition group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-red-400 group-hover:text-red-300">
-                <i class="fa-solid fa-circle-exclamation mr-1.5"></i> 1. Fractional Over-Selling
-              </span>
-              <span class="text-[10px] bg-red-500/10 text-red-400 px-1.5 py-0.5 rounded font-mono">P3 Track</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Tariqul has 3 decimals remaining after past sale, attempts to sell 10 decimals.</p>
-          </button>
-
-          <!-- Scenario 2 -->
-          <button onclick="runScenario2()" class="w-full text-left p-3 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-pink-500/50 transition group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-pink-400 group-hover:text-pink-300">
-                <i class="fa-solid fa-person-dress-burst mr-1.5"></i> 2. Sister Disinheritance
-              </span>
-              <span class="text-[10px] bg-pink-500/10 text-pink-400 px-1.5 py-0.5 rounded font-mono">Faraiz Fraud</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Brothers forge Warishnama omitting sister Fatima to claim 100% of parental land.</p>
-          </button>
-
-          <!-- Scenario 3 -->
-          <button onclick="runScenario3()" class="w-full text-left p-3 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 transition group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-amber-400 group-hover:text-amber-300">
-                <i class="fa-solid fa-gavel mr-1.5"></i> 3. Court Injunction Violation
-              </span>
-              <span class="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono">Lis Pendens</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Attempts transfer of Dag 302 under active High Court Status Quo injunction.</p>
-          </button>
-
-          <!-- Scenario 4 -->
-          <button onclick="runScenario4()" class="w-full text-left p-3 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-red-500/50 transition group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-red-400 group-hover:text-red-300">
-                <i class="fa-solid fa-lock mr-1.5"></i> 4. Inter-Registry Collision
-              </span>
-              <span class="text-[10px] bg-red-500/10 text-red-400 px-1.5 py-0.5 rounded font-mono">Sub-Registry Lock</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Simulates real-time double-selling across two sub-registry offices in the same 24 hours.</p>
-          </button>
-
-          <!-- Scenario 5 -->
-          <button onclick="runScenario5()" class="w-full text-left p-3 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 transition group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-emerald-400 group-hover:text-emerald-300">
-                <i class="fa-solid fa-shield-check mr-1.5"></i> 5. Clean Title Verification
-              </span>
-              <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono">Approved</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Dhanmondi plot passes all 4 verification layers, receives SHA-256 deed clearance.</p>
-          </button>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Click any scenario to trigger audit</span>
-          <button onclick="resetGraph()" class="text-slate-400 hover:text-white underline">Reset</button>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- CENTER COLUMN: INTERACTIVE GRAPH & LINEAGE (6 Cols) -->
-    <section class="lg:col-span-6 flex flex-col space-y-4">
-      
-      <!-- GRAPH CONTAINER -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-2">
-            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center">
-              <i class="fa-solid fa-circle-nodes text-emerald-400 mr-2"></i> Cadastral Lineage Graph
-            </h2>
-            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">CS &rarr; SA &rarr; RS &rarr; BS Chain</span>
-          </div>
-          <div class="flex items-center space-x-2 text-xs">
-            <button onclick="networkFit()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs transition">
-              <i class="fa-solid fa-compress mr-1"></i> Center
-            </button>
-          </div>
-        </div>
-
-        <!-- The Vis.js canvas container -->
-        <div id="network-container" class="border border-slate-800 relative">
-          <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-950/70 z-10 hidden">
-            <div class="flex items-center space-x-2 text-emerald-400 text-sm">
-              <i class="fa-solid fa-circle-notch fa-spin"></i>
-              <span>Traversing Parcel Lineage Graph...</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- GRAPH LEGEND -->
-        <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-amber-500 mr-1.5 inline-block"></span> Hist. Survey (CS/SA/RS)</span>
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-blue-500 mr-1.5 inline-block"></span> Current BS Survey</span>
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-emerald-500 mr-1.5 inline-block"></span> Verified Heir (Male)</span>
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-pink-500 mr-1.5 inline-block"></span> Verified Heir (Female)</span>
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-purple-500 mr-1.5 inline-block"></span> Registered Deed</span>
-          <span class="flex items-center"><span class="w-3 h-3 rounded bg-red-500 mr-1.5 inline-block"></span> Injunction / Lock</span>
-        </div>
-      </div>
-
-      <!-- AUDIT DECISION & EXPLANATION CONSOLE -->
-      <div id="audit-result-panel" class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex-1">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center">
-            <i class="fa-solid fa-microchip text-emerald-400 mr-2"></i> Verification Engine Output
-          </h3>
-          <span id="decision-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-800 text-slate-400">
-            Awaiting Audit Execution
-          </span>
-        </div>
-
-        <div id="audit-content" class="text-sm space-y-3">
-          <p class="text-slate-400 text-xs">Select a fraud scenario from the left panel or click "Run Verification Audit" to inspect legal share conservation, succession integrity, and encumbrances.</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- RIGHT COLUMN: LAND HEALTH INDEX & TRANSACTION AUDIT FORM (3 Cols) -->
-    <section class="lg:col-span-3 flex flex-col space-y-4">
-      
-      <!-- LAND HEALTH INDEX CARD -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center">
-            <i class="fa-solid fa-heart-pulse text-rose-400 mr-2"></i> Land Health Index
-          </h3>
-          <span class="text-[10px] text-slate-500">Citizen Due Diligence</span>
-        </div>
-
-        <div class="flex items-center justify-between p-3 rounded-lg bg-slate-950 border border-slate-800/90 mb-3">
-          <div>
-            <div id="health-score-val" class="text-3xl font-extrabold text-emerald-400 font-mono">--</div>
-            <div id="health-score-rating" class="text-[11px] text-slate-400 uppercase tracking-wide font-medium mt-0.5">Calculating...</div>
-          </div>
-          <div class="text-right text-xs space-y-1 text-slate-400">
-            <div>Area: <span id="health-area" class="text-slate-200 font-medium">--</span></div>
-            <div>Tax: <span id="health-tax" class="text-slate-200 font-medium">--</span></div>
-            <div>Encumbrances: <span id="health-enc" class="text-slate-200 font-medium">--</span></div>
-          </div>
-        </div>
-
-        <div id="health-penalties" class="space-y-1.5 text-xs">
-          <!-- Itemized penalties -->
-        </div>
-      </div>
-
-      <!-- TRANSACTION VERIFICATION CONSOLE -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex-1 flex flex-col">
-        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center mb-3">
-          <i class="fa-solid fa-scale-balanced text-emerald-400 mr-2"></i> Sub-Registry Pre-Check
-        </h3>
-        
-        <form id="transfer-form" onsubmit="event.preventDefault(); submitCustomTransfer();" class="space-y-3 flex-1 flex flex-col justify-between">
-          <div class="space-y-3">
-            <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">Seller National ID (NID)</label>
-              <input id="input-seller-nid" type="text" value="1988-9901-01" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-emerald-500 focus:outline-none">
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">Proposed Transfer Area (Decimals)</label>
-              <input id="input-proposed-area" type="number" step="0.1" value="10.0" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-mono focus:border-emerald-500 focus:outline-none">
-            </div>
-
-            <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1">
-              <div class="font-semibold text-slate-300">Statutory Checks Applied:</div>
-              <div>&bull; Transfer of Property Act 1882 (Sec 52)</div>
-              <div>&bull; Muslim Family Laws Ordinance 1961 (Faraiz)</div>
-              <div>&bull; Registration Act 1908 (Sec 22A Share Audit)</div>
-            </div>
-          </div>
-
-          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold py-2.5 rounded-lg flex items-center justify-center space-x-2 transition shadow-md shadow-emerald-600/20 mt-3">
-            <i class="fa-solid fa-shield-halved"></i>
-            <span>Execute Pre-Registration Audit</span>
-          </button>
-        </form>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- MODAL: CRYPTOGRAPHIC TITLE CERTIFICATE -->
-  <div id="cert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
-      <button onclick="closeCertificateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <div class="border-b border-slate-800 pb-4 mb-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl">
-            <i class="fa-solid fa-certificate"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-white">Digital Land Title Certificate</h3>
-            <p class="text-xs text-slate-400">Cryptographically Sealed Title Due-Diligence Summary</p>
-          </div>
-        </div>
-        <span id="modal-cert-status" class="px-2.5 py-1 rounded text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-          OFFICIALLY VERIFIED
-        </span>
-      </div>
-
-      <div id="modal-cert-body" class="space-y-3 text-xs text-slate-300">
-        <!-- Injected via JS -->
-      </div>
-
-      <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-        <div class="text-[11px] text-slate-500 font-mono" id="modal-cert-hash">
-          SHA-256: --
-        </div>
-        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-4 py-2 rounded-lg flex items-center space-x-2 transition">
-          <i class="fa-solid fa-print"></i>
-          <span>Print / Export PDF</span>
-        </button>
-      </div>
+    <div class="flex items-center space-x-5 text-[11px]">
+      <span class="flex items-center"><i class="fa-solid fa-headset mr-1.5 text-amber-300"></i> কল সেন্টার: <strong>১৬১২২</strong></span>
+      <span class="hidden md:inline-flex items-center"><i class="fa-solid fa-phone-volume mr-1.5 text-amber-300"></i> জাতীয় সেবা: <strong>৩৩৩</strong></span>
     </div>
   </div>
 
-  <!-- JAVASCRIPT APPLICATION LOGIC -->
-  <script>
-    let network = null;
-    let currentParcelId = "BS-810";
-
-    // Initialize application on page load
-    window.addEventListener("DOMContentLoaded", () => {
-      loadParcelGraph(currentParcelId);
-      loadHealthScore(currentParcelId);
-    });
-
-    async function onParcelChanged() {
-      const select = document.getElementById("parcel-select");
-      currentParcelId = select.value;
-      
-      // Update form default values
-      if (currentParcelId === "BS-810") {
-        document.getElementById("input-seller-nid").value = "1988-9901-01";
-        document.getElementById("input-proposed-area").value = "10.0";
-      } else if (currentParcelId === "BS-302") {
-        document.getElementById("input-seller-nid").value = "1975-4402-19";
-        document.getElementById("input-proposed-area").value = "5.0";
-      } else {
-        document.getElementById("input-seller-nid").value = "1985-2201-99";
-        document.getElementById("input-proposed-area").value = "4.0";
-      }
-
-      await loadParcelGraph(currentParcelId);
-      await loadHealthScore(currentParcelId);
-      resetAuditPanel();
-    }
-
-    async function loadParcelGraph(parcelId) {
-      document.getElementById("graph-loader").classList.remove("hidden");
-      try {
-        const res = await fetch(`/api/graph/${parcelId}`);
-        const data = await res.json();
-
-        const container = document.getElementById("network-container");
-        const graphData = {
-          nodes: new vis.DataSet(data.nodes),
-          edges: new vis.DataSet(data.edges)
-        };
-
-        const options = {
-          layout: {
-            hierarchical: {
-              enabled: true,
-              direction: "UD",
-              sortMethod: "directed",
-              levelSeparation: 110,
-              nodeSpacing: 180
-            }
-          },
-          physics: {
-            hierarchicalRepulsion: {
-              nodeDistance: 160
-            }
-          },
-          nodes: {
-            borderWidth: 2,
-            shadow: true,
-            margin: 10
-          },
-          edges: {
-            width: 2,
-            smooth: {
-              type: "cubicBezier",
-              forceDirection: "vertical",
-              roundness: 0.4
-            },
-            font: {
-              size: 11,
-              color: "#94a3b8",
-              strokeWidth: 0,
-              background: "#020617"
-            }
-          },
-          interaction: {
-            hover: true,
-            tooltipDelay: 100
-          }
-        };
-
-        if (network) {
-          network.destroy();
-        }
-        network = new vis.Network(container, graphData, options);
-
-      } catch (err) {
-        console.error("Error loading graph:", err);
-      } finally {
-        document.getElementById("graph-loader").classList.add("hidden");
-      }
-    }
-
-    async function loadHealthScore(parcelId) {
-      try {
-        const res = await fetch(`/api/health/${parcelId}`);
-        const data = await res.json();
-
-        document.getElementById("health-score-val").innerText = `${data.score}/100`;
-        document.getElementById("health-score-val").style.color = data.badge_color;
-        document.getElementById("health-score-rating").innerText = data.rating;
-        document.getElementById("health-area").innerText = `${data.total_area_decimals} Dec`;
-        document.getElementById("health-tax").innerText = data.tax_status.replace(/_/g, ' ');
-        document.getElementById("health-enc").innerText = `${data.encumbrance_count} Active`;
-
-        const penaltiesContainer = document.getElementById("health-penalties");
-        penaltiesContainer.innerHTML = "";
-        if (data.penalties.length === 0) {
-          penaltiesContainer.innerHTML = `
-            <div class="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-2 rounded">
-              <i class="fa-solid fa-check-circle mr-1"></i> Zero title defects or liens detected.
-            </div>
-          `;
-        } else {
-          data.penalties.forEach(p => {
-            penaltiesContainer.innerHTML += `
-              <div class="flex items-center justify-between text-[11px] bg-red-500/10 border border-red-500/20 text-red-300 p-1.5 rounded">
-                <span>${p.factor}</span>
-                <span class="font-mono font-bold">${p.deduction} pts</span>
-              </div>
-            `;
-          });
-        }
-
-        // Quick info in left sidebar
-        document.getElementById("parcel-quick-info").innerHTML = `
-          <div class="flex justify-between"><span>Mouza:</span> <span class="text-slate-200">${data.mouza}</span></div>
-          <div class="flex justify-between"><span>BS Dag:</span> <span class="text-slate-200">${data.dag_no}</span></div>
-          <div class="flex justify-between"><span>Health:</span> <span style="color: ${data.badge_color}; font-weight: 600;">${data.score}/100</span></div>
-        `;
-
-      } catch (err) {
-        console.error("Error loading health:", err);
-      }
-    }
-
-    function networkFit() {
-      if (network) network.fit();
-    }
-
-    function resetAuditPanel() {
-      const badge = document.getElementById("decision-badge");
-      badge.className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-800 text-slate-400";
-      badge.innerText = "Awaiting Audit Execution";
-      document.getElementById("audit-content").innerHTML = `
-        <p class="text-slate-400 text-xs">Select a fraud scenario from the left panel or click "Run Verification Audit" to inspect legal share conservation, succession integrity, and encumbrances.</p>
-      `;
-    }
-
-    // ------------------------------------------------------------------------
-    // SCENARIO RUNNERS (JUDGES DEMOS)
-    // ------------------------------------------------------------------------
-
-    // Scenario 1: Fractional Double-Selling (Overselling depleted share)
-    async function runScenario1() {
-      document.getElementById("parcel-select").value = "BS-810";
-      currentParcelId = "BS-810";
-      await loadParcelGraph("BS-810");
-      await loadHealthScore("BS-810");
-
-      document.getElementById("input-seller-nid").value = "1988-9901-01";
-      document.getElementById("input-proposed-area").value = "10.0";
-
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-810",
-          seller_nid: "1988-9901-01", // Tariqul
-          proposed_area: 10.0
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    // Scenario 2: Sister Disinheritance / Concealed Faraiz Heir
-    async function runScenario2() {
-      document.getElementById("parcel-select").value = "BS-810";
-      currentParcelId = "BS-810";
-      await loadParcelGraph("BS-810");
-      await loadHealthScore("BS-810");
-
-      // Submit claim omitting daughter Fatima Begum
-      const fraudulentHeirClaim = [
-        { nid: "1988-9901-01", name: "Tariqul Islam", relation: "SON" },
-        { nid: "1992-9901-02", name: "Rafiqul Islam", relation: "SON" }
-      ];
-
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-810",
-          seller_nid: "1988-9901-01",
-          proposed_area: 4.0,
-          claimed_heirs: fraudulentHeirClaim
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    // Scenario 3: Court Injunction (Status Quo)
-    async function runScenario3() {
-      document.getElementById("parcel-select").value = "BS-302";
-      currentParcelId = "BS-302";
-      await loadParcelGraph("BS-302");
-      await loadHealthScore("BS-302");
-
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-302",
-          seller_nid: "1975-4402-19",
-          proposed_area: 5.0
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    // Scenario 4: Inter-Registry Collision Simulation
-    async function runScenario4() {
-      document.getElementById("parcel-select").value = "BS-810";
-      currentParcelId = "BS-810";
-
-      // 1. First office places a temporary lock
-      await fetch("/api/lock/acquire", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-810",
-          office: "Gazipur Sadar Sub-Registry",
-          area: 3.0
-        })
-      });
-
-      await loadParcelGraph("BS-810");
-
-      // 2. Second office immediately tries to register another deed
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-810",
-          seller_nid: "1988-9901-01",
-          proposed_area: 3.0
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    // Scenario 5: Clean Title
-    async function runScenario5() {
-      // Release any locks first
-      await fetch("/api/lock/release", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parcel_id: "BS-1104" })
-      });
-
-      document.getElementById("parcel-select").value = "BS-1104";
-      currentParcelId = "BS-1104";
-      await loadParcelGraph("BS-1104");
-      await loadHealthScore("BS-1104");
-
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: "BS-1104",
-          seller_nid: "1985-2201-99",
-          proposed_area: 4.0
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    async function submitCustomTransfer() {
-      const sellerNid = document.getElementById("input-seller-nid").value;
-      const proposedArea = parseFloat(document.getElementById("input-proposed-area").value);
-
-      const res = await fetch("/api/audit-transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parcel_id: currentParcelId,
-          seller_nid: sellerNid,
-          proposed_area: proposedArea
-        })
-      });
-      const data = await res.json();
-      displayAuditResult(data);
-    }
-
-    async function resetGraph() {
-      await fetch("/api/lock/release", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parcel_id: currentParcelId })
-      });
-      await loadParcelGraph(currentParcelId);
-      await loadHealthScore(currentParcelId);
-      resetAuditPanel();
-    }
-
-    // Display formatted audit report in center panel
-    function displayAuditResult(data) {
-      const badge = document.getElementById("decision-badge");
-      const content = document.getElementById("audit-content");
-
-      if (data.decision === "APPROVED") {
-        badge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse";
-        badge.innerText = "✓ TRANSACTION APPROVED";
-
-        content.innerHTML = `
-          <div class="bg-emerald-950/40 border border-emerald-800/60 p-3.5 rounded-xl space-y-2">
-            <div class="text-sm font-semibold text-emerald-300 flex items-center">
-              <i class="fa-solid fa-circle-check text-emerald-400 mr-2 text-base"></i>
-              Legal Title & Share Verification: PASSED
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">${data.explanation}</p>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-emerald-800/40 text-[11px] font-mono">
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Acquired Entitlement:</span>
-                <span class="text-white font-bold">${data.starting_entitlement} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Prior Sold:</span>
-                <span class="text-purple-400 font-bold">${data.already_transferred_past} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Current Sale:</span>
-                <span class="text-emerald-400 font-bold">${data.approved_transfer_area} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">New Balance:</span>
-                <span class="text-white font-bold">${data.new_balance_after_sale} Dec</span>
-              </div>
-            </div>
-
-            <div class="pt-2 text-[10px] text-slate-400 flex items-center justify-between">
-              <span>Cryptographic Deed Hash: <span class="font-mono text-emerald-300">${data.cryptographic_deed_hash.substring(0, 20)}...</span></span>
-              <span class="text-emerald-400 font-medium">Ready for e-Mutation Trigger</span>
-            </div>
-          </div>
-        `;
-      } else {
-        badge.className = "px-3 py-1 rounded-full text-xs font-mono font-bold bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse";
-        badge.innerText = "✕ TRANSACTION REJECTED";
-
-        let mathDetails = "";
-        if (data.starting_entitlement !== undefined) {
-          mathDetails = `
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-red-800/40 text-[11px] font-mono">
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Legal Share:</span>
-                <span class="text-white font-bold">${data.starting_entitlement} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Already Sold:</span>
-                <span class="text-purple-400 font-bold">${data.already_transferred_past} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Attempted Sale:</span>
-                <span class="text-red-400 font-bold">${data.attempted_to_sell} Dec</span>
-              </div>
-              <div class="bg-slate-900/80 p-2 rounded">
-                <span class="text-slate-400 block">Illegal Deficit:</span>
-                <span class="text-red-400 font-extrabold">-${data.deficit} Dec</span>
-              </div>
-            </div>
-          `;
-        }
-
-        content.innerHTML = `
-          <div class="bg-red-950/40 border border-red-800/60 p-3.5 rounded-xl space-y-2">
-            <div class="text-sm font-semibold text-red-300 flex items-center justify-between">
-              <span class="flex items-center">
-                <i class="fa-solid fa-triangle-exclamation text-red-400 mr-2 text-base"></i>
-                ${data.title}
-              </span>
-              <span class="text-[10px] font-mono bg-red-900/50 text-red-200 px-2 py-0.5 rounded">${data.violation_code}</span>
-            </div>
-            
-            <p class="text-xs text-slate-300 leading-relaxed">${data.explanation}</p>
-            ${mathDetails}
-
-            <div class="pt-2 text-[10px] text-red-300/80 flex items-center justify-between border-t border-red-900/40">
-              <span>Security Action: <strong>Registry Deed Lock Applied</strong></span>
-              <span>Sub-Registrar Blocked under Sec 22A Registration Act</span>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    // Modal Certificate Logic
-    async function openCertificateModal() {
-      const res = await fetch(`/api/certificate/${currentParcelId}`);
-      const data = await res.json();
-
-      document.getElementById("modal-cert-status").innerText = data.status.replace(/_/g, " ");
-      document.getElementById("modal-cert-hash").innerText = `SHA-256: ${data.cryptographic_hash.substring(0, 36)}...`;
-
-      document.getElementById("modal-cert-body").innerHTML = `
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 grid grid-cols-2 gap-3">
-          <div><span class="text-slate-500">Certificate ID:</span> <span class="text-white font-mono font-bold">${data.certificate_id}</span></div>
-          <div><span class="text-slate-500">Verified Timestamp:</span> <span class="text-white font-mono">${data.timestamp}</span></div>
-          <div><span class="text-slate-500">Mouza & District:</span> <span class="text-white">${data.parcel.mouza}, ${data.parcel.district}</span></div>
-          <div><span class="text-slate-500">Cadastral Survey:</span> <span class="text-white">BS Dag ${data.parcel.dag_no} (Kh: ${data.parcel.khatian_no})</span></div>
-          <div><span class="text-slate-500">Total Parcel Area:</span> <span class="text-white">${data.parcel.total_area_decimals} Decimals</span></div>
-          <div><span class="text-slate-500">Health Score:</span> <span class="font-bold text-emerald-400">${data.health.score}/100 (${data.health.rating})</span></div>
+  <!-- MAIN GOVERNMENT HEADER (mutation.land.gov.bd style) -->
+  <header class="gov-green text-white shadow-md border-b-4 border-amber-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center">
+      <div class="flex items-center space-x-3.5">
+        <!-- Bangladesh National Emblem SVG -->
+        <div class="w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center shadow-md">
+          <svg viewBox="0 0 100 100" class="w-10 h-10">
+            <circle cx="50" cy="50" r="46" fill="#006a4e" />
+            <circle cx="50" cy="50" r="28" fill="#f42a41" />
+            <path d="M 50 15 L 53 30 L 47 30 Z" fill="#ffd700" />
+            <circle cx="50" cy="50" r="16" fill="#ffd700" />
+            <path d="M 30 75 Q 50 65 70 75 Q 50 85 30 75" fill="#ffffff" />
+          </svg>
         </div>
-        
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
-          <div class="font-semibold text-slate-200 mb-1">Cadastral Survey Continuity Audit (CS to BS):</div>
-          <p class="text-slate-400 text-[11px]">
-            This parcel's 30+ year chain has been cryptographically traversed. CS Dag 104 -> SA Dag 212 -> RS Dag 455 -> BS Dag ${data.parcel.dag_no}.
-            Continuous title lineage intact with zero unregistered gaps.
-          </p>
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center">
+            স্মার্ট ভূমি রেকর্ড ও খতিয়ান যাচাই সিস্টেম
+            <span class="ml-2.5 text-xs bg-amber-400 text-slate-900 px-2 py-0.5 rounded font-semibold">পর্চালেন্স ইঞ্জিন</span>
+          </h1>
+          <p class="text-xs text-emerald-100 mt-0.5">পুরাতন হস্তলিখিত খতিয়ান (CS/SA/RS) ডিজিটাইজেশন ও ১৬ আনা গাণিতিক জালিয়াতি নিরোধক পোর্টাল</p>
+        </div>
+      </div>
+
+      <!-- PORTAL MODE SWITCHER -->
+      <div class="mt-3 sm:mt-0 flex items-center bg-emerald-900/60 p-1 rounded-lg border border-emerald-700/50">
+        <button id="btn-citizen-mode" onclick="switchMode('citizen')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition bg-white text-emerald-900 shadow">
+          <i class="fa-solid fa-user mr-1.5"></i> নাগরিক সেবা
+        </button>
+        <button id="btn-acland-mode" onclick="switchMode('acland')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md transition text-emerald-100 hover:text-white">
+          <i class="fa-solid fa-building-columns mr-1.5"></i> এসি ল্যান্ড ও তহশিলদার
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NOTICE BANNER -->
+  <div class="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-xs">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center">
+        <i class="fa-solid fa-bullhorn text-amber-600 mr-2"></i>
+        <span><strong>গুরুত্বপূর্ণ নির্দেশিকা:</strong> যেকোনো জীর্ণ বা হস্তলিখিত খতিয়ানের ছবি আপলোড করুন। ভিশন এআই স্বয়ংক্রিয়ভাবে খতিয়ানের সকল অংশীদার ও ১৬ আনা হিস্যার সঠিকতা নিরূপণ করবে।</span>
+      </div>
+      <span class="hidden md:inline font-semibold text-emerald-800">ভূমি রেকর্ড ও জরিপ অধিদপ্তর (DLRS)</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- UPLOAD & TEST CARD -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
+      
+      <div class="flex flex-wrap items-center justify-between border-b border-slate-100 pb-4 mb-4 gap-2">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center">
+            <i class="fa-solid fa-cloud-arrow-up text-emerald-700 mr-2"></i>
+            হস্তলিখিত খতিয়ান বা পর্চা আপলোড করুন
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">আপনার কাছে থাকা খতিয়ান/পর্চার আসল ছবি তুলুন অথবা পূর্ব-সংরক্ষিত ফাইল নির্বাচন করুন</p>
+        </div>
+
+        <!-- QUICK SAMPLE EVALUATION BUTTONS -->
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-500 font-medium">দ্রুত পরীক্ষা করুন:</span>
+          <button onclick="testSample('authentic')" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold px-3 py-1.5 rounded-lg transition flex items-center">
+            <i class="fa-solid fa-check-double mr-1.5 text-emerald-600"></i> খাঁটি খতিয়ান (১৬ আনা নির্ভুল)
+          </button>
+          <button onclick="testSample('fraud')" class="text-xs bg-red-50 hover:bg-red-100 text-red-800 border border-red-300 font-semibold px-3 py-1.5 rounded-lg transition flex items-center">
+            <i class="fa-solid fa-triangle-exclamation mr-1.5 text-red-600"></i> জাল খতিয়ান (অতিরিক্ত হিস্যা)
+          </button>
+        </div>
+      </div>
+
+      <!-- DROPZONE -->
+      <div id="dropzone" onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-emerald-400/80 hover:border-emerald-600 bg-emerald-50/30 hover:bg-emerald-50/60 rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-3">
+        <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleFileSelected(event)">
+        <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shadow-inner">
+          <i class="fa-solid fa-file-invoice"></i>
+        </div>
+        <div>
+          <span class="text-sm font-bold text-emerald-950">এখানে আপনার খতিয়ান/পর্চা ড্র্যাগ করুন অথবা ক্লিক করে নির্বাচন করুন</span>
+          <p class="text-xs text-slate-500 mt-1">সমর্থিত ফরম্যাট: JPG, JPEG, PNG, WEBP (সর্বোচ্চ ১৬ মেগাবাইট)</p>
+        </div>
+      </div>
+
+      <!-- LOADER (SPINNER) -->
+      <div id="processing-loader" class="hidden mt-4 p-5 bg-emerald-900 text-white rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-amber-400"></i>
+          <div>
+            <div class="font-bold text-sm">হস্তলিখিত খতিয়ান প্রসেসিং ও গাণিতিক অডিট চলছে...</div>
+            <div class="text-xs text-emerald-200">বাংলা বর্ণমালা পার্সিং এবং ১৬ আনা হিস্যা বিশ্লেষণ করা হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন।</div>
+          </div>
+        </div>
+        <div class="text-xs font-mono bg-emerald-800 px-3 py-1.5 rounded text-amber-300 border border-emerald-700">
+          Gemini 3.5 Flash Vision AI
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESULTS SECTION (Initially hidden until processed) -->
+    <div id="results-container" class="hidden space-y-6">
+
+      <!-- MATH AUDIT ALERT BANNER (CRITICAL STATUS) -->
+      <div id="math-alert-box" class="rounded-xl p-5 shadow-sm text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div id="math-alert-icon" class="text-3xl mt-1">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div id="math-alert-title" class="text-lg font-bold">১৬ আনা গাণিতিক ফলাফল</div>
+            <p id="math-alert-msg" class="text-sm mt-1 leading-relaxed"></p>
+          </div>
+        </div>
+        <button onclick="openCertificateModal()" class="whitespace-nowrap bg-white text-slate-900 hover:bg-slate-100 text-xs font-bold px-4 py-2.5 rounded-lg shadow transition flex items-center self-end md:self-center">
+          <i class="fa-solid fa-print mr-2 text-emerald-700"></i>
+          স্মার্ট ই-খতিয়ান সনদ দেখুন
+        </button>
+      </div>
+
+      <!-- SIDE-BY-SIDE INSPECTION PANE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: ORIGINAL DOCUMENT IMAGE PREVIEW (5 Cols) -->
+        <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center">
+              <i class="fa-solid fa-image text-emerald-700 mr-2"></i>
+              মূল খতিয়ান দলিল প্রদর্শন
+            </h3>
+            <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">আসল স্ক্যান কপি</span>
+          </div>
+
+          <div class="flex-1 bg-slate-950 rounded-lg overflow-hidden flex items-center justify-center p-2 min-h-[420px]">
+            <img id="doc-preview-img" src="" alt="খতিয়ানের ছবি" class="max-h-[500px] w-auto object-contain rounded border border-slate-800 shadow">
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2 text-center">মাউস দিয়ে স্ক্রোল করে বড় আকারে খতিয়ানের হস্তলিপি পরীক্ষা করুন</p>
+        </div>
+
+        <!-- RIGHT COLUMN: EXTRACTED DIGITAL RECORD & SHARE AUDIT (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- ADMINISTRATIVE METADATA CARD -->
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center mb-3 border-b border-slate-100 pb-2">
+              <i class="fa-solid fa-landmark text-emerald-700 mr-2"></i>
+              খতিয়ানের প্রশাসনিক তথ্যাবলী
+            </h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">খতিয়ান প্রকার:</span>
+                <span id="meta-type" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">জেলা:</span>
+                <span id="meta-district" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">উপজেলা / থানা:</span>
+                <span id="meta-upazila" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">মৌজা ও জে.এল.:</span>
+                <span id="meta-mouza" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">খতিয়ান নং:</span>
+                <span id="meta-khatian-no" class="font-bold text-emerald-800 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">দাগ নং:</span>
+                <span id="meta-dag-no" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span class="text-slate-500 block">জমির শ্রেণী:</span>
+                <span id="meta-land-class" class="font-bold text-slate-900 text-sm">--</span>
+              </div>
+              <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
+                <span class="text-emerald-800 block font-medium">মোট জমির পরিমাণ:</span>
+                <span id="meta-total-area" class="font-extrabold text-emerald-900 text-sm">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CO-SHARERS TABLE & FRACTIONAL BREAKDOWN -->
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center">
+                <i class="fa-solid fa-users text-emerald-700 mr-2"></i>
+                অংশীদারগণের তালিকা ও আধুনিক জমিতে রূপান্তর (শতাংশ)
+              </h3>
+              <button onclick="recalculateTableMath()" class="text-xs text-emerald-700 hover:text-emerald-900 font-semibold flex items-center">
+                <i class="fa-solid fa-rotate mr-1"></i> হিস্যা পরিবর্তন হলে পুনরায় হিসাব
+              </button>
+            </div>
+
+            <!-- RESPONSIVE TABLE -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                    <th class="p-2.5 text-center font-bold">ক্রম</th>
+                    <th class="p-2.5 font-bold">মালিকের নাম ও পরিচয়</th>
+                    <th class="p-2.5 text-center font-bold">আনা</th>
+                    <th class="p-2.5 text-center font-bold">গণ্ডা</th>
+                    <th class="p-2.5 text-center font-bold">কড়া</th>
+                    <th class="p-2.5 text-center font-bold">ক্রান্তি</th>
+                    <th class="p-2.5 text-center font-bold">তিল</th>
+                    <th class="p-2.5 text-right font-bold text-emerald-900">প্রাপ্ত জমি (শতাংশ)</th>
+                  </tr>
+                </thead>
+                <tbody id="owners-table-body" class="divide-y divide-slate-100">
+                  <!-- Populated via JavaScript -->
+                </tbody>
+                <tfoot class="bg-slate-50 font-bold border-t-2 border-slate-300">
+                  <tr>
+                    <td colspan="2" class="p-2.5 text-right text-slate-700">সর্বমোট হিসাব:</td>
+                    <td colspan="5" id="total-shares-foot" class="p-2.5 text-center font-mono">--</td>
+                    <td id="total-area-foot" class="p-2.5 text-right text-emerald-900 font-mono text-sm">--</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="mt-3 p-3 bg-slate-50 rounded-lg text-[11px] text-slate-500 flex items-center justify-between border border-slate-200/60">
+              <span>* বাংলা হস্তলিপির আনা-গণ্ডা-কড়া-ক্রান্তি স্বয়ংক্রিয়ভাবে ৭৬,৮০০ তিল স্ট্যান্ডার্ডে রূপান্তর করা হয়েছে।</span>
+              <span class="text-emerald-800 font-semibold">১ আনা = ২০ গণ্ডা = ৮০ কড়া = ২৪০ ক্রান্তি = ৪৮০০ তিল</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- OFFICIAL CERTIFICATE MODAL -->
+  <div id="cert-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-8 shadow-2xl relative border-4 border-emerald-800">
+      
+      <button onclick="closeCertificateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- GOV CERTIFICATE HEADER -->
+      <div class="text-center border-b-2 border-slate-200 pb-4 mb-4">
+        <div class="w-12 h-12 mx-auto mb-1">
+          <svg viewBox="0 0 100 100" class="w-12 h-12">
+            <circle cx="50" cy="50" r="46" fill="#006a4e" />
+            <circle cx="50" cy="50" r="28" fill="#f42a41" />
+            <circle cx="50" cy="50" r="16" fill="#ffd700" />
+          </svg>
+        </div>
+        <div class="text-sm font-bold text-slate-800">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</div>
+        <div class="text-xs text-slate-600">ভূমি মন্ত্রণালয় | ভূমি রেকর্ড ও জরিপ অধিদপ্তর</div>
+        <div class="text-base font-extrabold text-emerald-800 mt-1 uppercase">স্মার্ট ডিজিটাল ই-খতিয়ান ও স্বত্বলিপি যাচাই সনদ</div>
+      </div>
+
+      <div id="cert-content-body" class="space-y-4 text-xs text-slate-700">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- FOOTER WITH DIGITAL SEAL -->
+      <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
+        <div class="text-[11px] text-slate-500 font-mono" id="cert-hash-footer">
+          ডিজিটাল স্বাক্ষর হ্যাশ: --
+        </div>
+        <div class="space-x-2">
+          <button onclick="window.print()" class="bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs px-4 py-2 rounded-lg transition shadow">
+            <i class="fa-solid fa-print mr-1.5"></i> প্রিন্ট বা পিডিএফ সংরক্ষণ
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="gov-green-dark text-white text-xs mt-12 py-6 border-t-2 border-amber-500">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+      <p class="font-medium">পরিকল্পনা ও বাস্তবায়নে: ভূমি মন্ত্রণালয়, গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</p>
+      <p class="text-emerald-300 text-[11px]">সার্বিক সহযোগিতায়: এটুআই (a2i) ও ভূমি রেকর্ড এবং জরিপ অধিদপ্তর (DLRS) | পর্চালেন্স ভিশন এআই ইঞ্জিন v1.0</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    let currentProcessedData = null;
+
+    function switchMode(mode) {
+      const btnCitizen = document.getElementById("btn-citizen-mode");
+      const btnAcland = document.getElementById("btn-acland-mode");
+
+      if (mode === "citizen") {
+        btnCitizen.className = "px-3.5 py-1.5 text-xs font-semibold rounded-md transition bg-white text-emerald-900 shadow";
+        btnAcland.className = "px-3.5 py-1.5 text-xs font-semibold rounded-md transition text-emerald-100 hover:text-white";
+      } else {
+        btnAcland.className = "px-3.5 py-1.5 text-xs font-semibold rounded-md transition bg-white text-emerald-900 shadow";
+        btnCitizen.className = "px-3.5 py-1.5 text-xs font-semibold rounded-md transition text-emerald-100 hover:text-white";
+      }
+    }
+
+    async function handleFileSelected(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      showLoader(true);
+      try {
+        const res = await fetch("/api/process-upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        renderResult(data);
+      } catch (err) {
+        alert("সার্ভার ত্রুটি: " + err.message);
+      } finally {
+        showLoader(false);
+      }
+    }
+
+    async function testSample(sampleType) {
+      showLoader(true);
+      try {
+        const res = await fetch("/api/process-sample", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sample_type: sampleType })
+        });
+        const data = await res.json();
+        renderResult(data);
+      } catch (err) {
+        alert("সার্ভার ত্রুটি: " + err.message);
+      } finally {
+        showLoader(false);
+      }
+    }
+
+    function showLoader(show) {
+      const loader = document.getElementById("processing-loader");
+      if (show) {
+        loader.classList.remove("hidden");
+        document.getElementById("results-container").classList.add("hidden");
+      } else {
+        loader.classList.add("hidden");
+      }
+    }
+
+    function renderResult(data) {
+      if (!data.success) {
+        alert(data.error_bn || "খতিয়ান পার্সিং ব্যর্থ হয়েছে।");
+        return;
+      }
+
+      currentProcessedData = data;
+      const meta = data.metadata;
+      const audit = data.math_audit;
+
+      // Image Preview
+      document.getElementById("doc-preview-img").src = data.image_url;
+
+      // Metadata
+      document.getElementById("meta-type").innerText = meta.khatian_type;
+      document.getElementById("meta-district").innerText = meta.district;
+      document.getElementById("meta-upazila").innerText = meta.upazila;
+      document.getElementById("meta-mouza").innerText = `${meta.mouza} (জে.এল. ${meta.jl_no || '-'})`;
+      document.getElementById("meta-khatian-no").innerText = meta.khatian_no;
+      document.getElementById("meta-dag-no").innerText = Array.isArray(meta.dag_numbers) ? meta.dag_numbers.join(", ") : meta.dag_numbers;
+      document.getElementById("meta-land-class").innerText = meta.land_class;
+      document.getElementById("meta-total-area").innerText = `${audit.total_area_decimals_bn} শতাংশ`;
+
+      // Math Alert Banner
+      const alertBox = document.getElementById("math-alert-box");
+      const alertIcon = document.getElementById("math-alert-icon");
+      const alertTitle = document.getElementById("math-alert-title");
+      const alertMsg = document.getElementById("math-alert-msg");
+
+      alertBox.className = `rounded-xl p-5 shadow-sm text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${audit.badge_color}`;
+      alertTitle.innerText = audit.status_bn;
+      alertMsg.innerText = audit.message_bn;
+
+      if (audit.status === "AUTHENTIC_PERFECT") {
+        alertIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-300"></i>`;
+      } else if (audit.status === "FRAUD_OVERALLOCATION") {
+        alertIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-300"></i>`;
+      } else {
+        alertIcon.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-200"></i>`;
+      }
+
+      // Render Owners Table
+      renderOwnersTable(audit.owners, audit);
+
+      document.getElementById("results-container").classList.remove("hidden");
+      document.getElementById("results-container").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function renderOwnersTable(owners, audit) {
+      const tbody = document.getElementById("owners-table-body");
+      tbody.innerHTML = "";
+
+      owners.forEach((o, index) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition";
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold text-slate-500">${index + 1}</td>
+          <td class="p-2.5">
+            <div class="font-bold text-slate-900">${o.name}</div>
+            <div class="text-[11px] text-slate-500">${o.father_spouse || ''}</div>
+          </td>
+          <td class="p-2 text-center">
+            <input type="number" step="1" min="0" max="16" value="${o.ana}" data-idx="${index}" data-field="ana" class="w-12 text-center bg-slate-50 border border-slate-300 rounded p-1 font-mono text-xs focus:bg-white focus:border-emerald-600">
+          </td>
+          <td class="p-2 text-center">
+            <input type="number" step="1" min="0" max="19" value="${o.gonda}" data-idx="${index}" data-field="gonda" class="w-12 text-center bg-slate-50 border border-slate-300 rounded p-1 font-mono text-xs focus:bg-white focus:border-emerald-600">
+          </td>
+          <td class="p-2 text-center">
+            <input type="number" step="1" min="0" max="3" value="${o.kora}" data-idx="${index}" data-field="kora" class="w-10 text-center bg-slate-50 border border-slate-300 rounded p-1 font-mono text-xs focus:bg-white focus:border-emerald-600">
+          </td>
+          <td class="p-2 text-center">
+            <input type="number" step="1" min="0" max="2" value="${o.kranti}" data-idx="${index}" data-field="kranti" class="w-10 text-center bg-slate-50 border border-slate-300 rounded p-1 font-mono text-xs focus:bg-white focus:border-emerald-600">
+          </td>
+          <td class="p-2 text-center">
+            <input type="number" step="0.1" min="0" max="19.9" value="${o.til}" data-idx="${index}" data-field="til" class="w-12 text-center bg-slate-50 border border-slate-300 rounded p-1 font-mono text-xs focus:bg-white focus:border-emerald-600">
+          </td>
+          <td class="p-2.5 text-right font-bold text-emerald-800 text-sm">
+            ${o.calculated_decimals_bn} শতাংশ
+            <span class="block text-[10px] text-slate-400 font-normal">(${o.share_percentage}%)</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update foot totals
+      document.getElementById("total-shares-foot").innerText = `মোট: ${audit.total_tils} তিল (নির্ধারিত: ৭৬,৮০০ তিল)`;
+      document.getElementById("total-area-foot").innerText = `${audit.total_area_decimals_bn} শতাংশ`;
+    }
+
+    async function recalculateTableMath() {
+      if (!currentProcessedData) return;
+
+      const owners = currentProcessedData.math_audit.owners;
+      const inputs = document.querySelectorAll("#owners-table-body input");
+
+      inputs.forEach(input => {
+        const idx = parseInt(input.getAttribute("data-idx"));
+        const field = input.getAttribute("data-field");
+        owners[idx][field] = parseFloat(input.value) || 0;
+      });
+
+      const res = await fetch("/api/recalculate-math", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          owners: owners,
+          total_area_decimals: currentProcessedData.math_audit.total_area_decimals
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentProcessedData.math_audit = data.math_audit;
+        renderResult(currentProcessedData);
+      }
+    }
+
+    async function openCertificateModal() {
+      if (!currentProcessedData) return;
+
+      const meta = currentProcessedData.metadata;
+      const audit = currentProcessedData.math_audit;
+
+      const res = await fetch("/api/generate-certificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: meta, math_audit: audit })
+      });
+      const cert = await res.json();
+
+      document.getElementById("cert-hash-footer").innerText = `ডিজিটাল সনদ হ্যাশ: ${cert.cert_hash.substring(0, 32)}...`;
+
+      document.getElementById("cert-content-body").innerHTML = `
+        <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <div><span class="text-slate-500">সনদ নম্বর:</span> <strong class="text-emerald-900">${cert.certificate_id}</strong></div>
+          <div><span class="text-slate-500">ইস্যুর সময়:</span> <strong>${cert.issued_timestamp}</strong></div>
+          <div><span class="text-slate-500">খতিয়ান প্রকার ও নম্বর:</span> <strong>${meta.khatian_type} - খতিয়ান নং ${meta.khatian_no}</strong></div>
+          <div><span class="text-slate-500">মৌজা ও জে.এল. নম্বর:</span> <strong>${meta.mouza} (জে.এল. ${meta.jl_no || '-'})</strong></div>
+          <div><span class="text-slate-500">দাগ নম্বর:</span> <strong>${Array.isArray(meta.dag_numbers) ? meta.dag_numbers.join(', ') : meta.dag_numbers}</strong></div>
+          <div><span class="text-slate-500">মোট জমির পরিমাণ:</span> <strong class="text-emerald-800">${audit.total_area_decimals_bn} শতাংশ</strong></div>
+        </div>
+
+        <div class="p-3 rounded-lg border ${audit.status === 'AUTHENTIC_PERFECT' ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-red-50 border-red-300 text-red-950'}">
+          <div class="font-bold text-sm mb-1">${audit.status_bn}</div>
+          <p class="text-xs leading-relaxed">${audit.message_bn}</p>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg p-3">
+          <div class="font-bold text-xs text-slate-800 mb-2">স্বত্বাধিকারী ও হিস্যা বণ্টন বিবরণী:</div>
+          <div class="space-y-1.5">
+            ${audit.owners.map(o => `
+              <div class="flex justify-between items-center text-xs border-b border-slate-100 pb-1">
+                <span><strong>${o.name}</strong> (${o.father_spouse || ''})</span>
+                <span class="font-mono text-emerald-800">${o.share_bn} &rarr; <strong>${o.calculated_decimals_bn} শতাংশ</strong></span>
+              </div>
+            `).join('')}
+          </div>
         </div>
       `;
 

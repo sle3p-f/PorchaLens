@@ -1,88 +1,106 @@
 """
-BhumiGraph - Flask Web Application & REST API
-LandTech 2026 Innovation Hackathon
+PorchaLens (পর্চালেন্স) - স্মার্ট ভূমি রেকর্ড ডিজিটাইজেশন ও গাণিতিক যাচাই প্ল্যাটফর্ম
+Bangladesh Government Land Ministry Theme (mutation.land.gov.bd style)
 """
 
-from flask import Flask, render_template, jsonify, request
-from graph_core import engine
-import hashlib
+import os
+import io
 import time
+import hashlib
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from vision_engine import extract_and_verify_khatian
+from tenancy_math import audit_khatian_math, to_bangla_digits
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload
+UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
 
-@app.route("/api/parcels", methods=["GET"])
-def get_parcels():
-    return jsonify(engine.list_all_parcels())
+@app.route("/api/process-upload", methods=["POST"])
+def process_upload():
+    """Handles real user-uploaded Khatian image for Vision AI parsing and mathematical audit."""
+    if "file" not in request.files:
+        return jsonify({"success": False, "error_bn": "কোনো ফাইল নির্বাচন করা হয়নি।"}), 400
 
-@app.route("/api/graph/<parcel_id>", methods=["GET"])
-def get_graph(parcel_id):
-    graph_data = engine.build_vis_graph(parcel_id)
-    return jsonify(graph_data)
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"success": False, "error_bn": "ফাইলের নাম পাওয়া যায়নি।"}), 400
 
-@app.route("/api/health/<parcel_id>", methods=["GET"])
-def get_health(parcel_id):
-    health_data = engine.compute_land_health_score(parcel_id)
-    return jsonify(health_data)
+    image_bytes = file.read()
+    mime_type = file.mimetype or "image/jpeg"
 
-@app.route("/api/audit-transfer", methods=["POST"])
-def audit_transfer():
+    # Save uploaded file temporarily for display
+    filename = f"upload_{int(time.time())}_{file.filename}"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    with open(filepath, "wb") as f:
+        f.write(image_bytes)
+
+    # Process using Gemini Vision & Tenancy Math Engine
+    result = extract_and_verify_khatian(image_bytes, mime_type=mime_type)
+    if result.get("success"):
+        result["image_url"] = f"/static/uploads/{filename}"
+
+    return jsonify(result)
+
+@app.route("/api/process-sample", methods=["POST"])
+def process_sample():
+    """Processes one of the pre-loaded authentic or fraudulent sample images."""
     data = request.json or {}
-    parcel_id = data.get("parcel_id", "BS-810")
-    seller_nid = data.get("seller_nid", "")
-    proposed_area = float(data.get("proposed_area", 0.0))
-    claimed_heirs = data.get("claimed_heirs", None)
+    sample_type = data.get("sample_type", "authentic")
 
-    audit_result = engine.audit_transfer_attempt(
-        parcel_id=parcel_id,
-        seller_nid=seller_nid,
-        proposed_area_decimals=proposed_area,
-        claimed_heirs=claimed_heirs
-    )
-    return jsonify(audit_result)
+    if sample_type == "fraud":
+        filename = "sample_fraud_cs_khatian.jpg"
+    else:
+        filename = "sample_authentic_cs_khatian.jpg"
 
-@app.route("/api/lock/acquire", methods=["POST"])
-def acquire_lock():
+    sample_path = os.path.join(app.root_path, "static", "samples", filename)
+    if not os.path.exists(sample_path):
+        return jsonify({"success": False, "error_bn": "নমুনা ফাইল পাওয়া যায়নি।"}), 404
+
+    with open(sample_path, "rb") as f:
+        image_bytes = f.read()
+
+    result = extract_and_verify_khatian(image_bytes, mime_type="image/jpeg")
+    if result.get("success"):
+        result["image_url"] = f"/static/samples/{filename}"
+
+    return jsonify(result)
+
+@app.route("/api/recalculate-math", methods=["POST"])
+def recalculate_math():
+    """Recalculates 16-Ana math when an officer or citizen edits values in the table."""
     data = request.json or {}
-    parcel_id = data.get("parcel_id", "BS-810")
-    office = data.get("office", "Gazipur Sadar Sub-Registry")
-    area = float(data.get("area", 5.0))
-    res = engine.acquire_inter_registry_lock(parcel_id, office, area)
-    return jsonify(res)
+    owners = data.get("owners", [])
+    total_area = float(data.get("total_area_decimals", 0.0))
 
-@app.route("/api/lock/release", methods=["POST"])
-def release_lock():
+    math_result = audit_khatian_math(owners=owners, total_area_decimals=total_area)
+    return jsonify({"success": True, "math_audit": math_result})
+
+@app.route("/api/generate-certificate", methods=["POST"])
+def generate_certificate():
+    """Generates an official Bangladesh Smart e-Porcha verification certificate."""
     data = request.json or {}
-    parcel_id = data.get("parcel_id", "BS-810")
-    res = engine.release_inter_registry_lock(parcel_id)
-    return jsonify({"success": res})
+    metadata = data.get("metadata", {})
+    math_audit = data.get("math_audit", {})
 
-@app.route("/api/certificate/<parcel_id>", methods=["GET"])
-def get_certificate(parcel_id):
-    parcel = engine.get_parcel(parcel_id)
-    if not parcel:
-        return jsonify({"error": "Not found"}), 404
-    
-    health = engine.compute_land_health_score(parcel_id)
-    timestamp = time.strftime("%d-%b-%Y %H:%M:%S UTC")
-    raw_hash_input = f"{parcel_id}:{parcel['khatian_no']}:{health['score']}:{timestamp}"
-    cert_hash = hashlib.sha256(raw_hash_input.encode()).hexdigest().upper()
+    cert_raw = f"{metadata.get('khatian_no')}:{metadata.get('mouza')}:{math_audit.get('status')}:{time.time()}"
+    cert_hash = hashlib.sha256(cert_raw.encode()).hexdigest().upper()
 
     return jsonify({
-        "certificate_id": f"BG-CERT-{cert_hash[:12]}",
-        "timestamp": timestamp,
-        "parcel": parcel,
-        "health": health,
-        "cryptographic_hash": cert_hash,
-        "status": "OFFICIALLY_VERIFIED" if health["score"] >= 80 else "CAUTION_ENCUMBERED"
+        "success": True,
+        "certificate_id": f"BD-LAND-PORCHA-{cert_hash[:10]}",
+        "qr_payload": f"https://land.gov.bd/verify?cert={cert_hash[:16]}",
+        "issued_timestamp": time.strftime("%d-%m-%Y %H:%M:%S"),
+        "cert_hash": cert_hash
     })
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print(" BhumiGraph Web Server Running on http://127.0.0.1:5000")
-    print(" LandTech 2026 - Digital Land Records, Verification & Digitization")
-    print("=" * 60)
+    print("=" * 65)
+    print(" স্মার্ট ভূমি রেকর্ড ও খতিয়ান যাচাইকরণ প্ল্যাটফর্ম (PorchaLens)")
+    print(" ওয়েবসাইট চালু হচ্ছে: http://127.0.0.1:5000")
+    print("=" * 65)
     app.run(host="127.0.0.1", port=5000, debug=True)
