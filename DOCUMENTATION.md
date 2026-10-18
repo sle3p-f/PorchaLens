@@ -95,15 +95,15 @@ Instead of treating land record digitization as a mere text-recognition exercise
 
 ### 3.2 The 16-Ana Mathematical Audit & Fraud Engine
 - **Til Normalization Formula**:
-  $$\text{Tils} = (\text{Ana} \times 4800) + (\text{Gonda} \times 240) + (\text{Kora} \times 60) + (\text{Kranti} \times 20) + \text{Til}$$
+  `Total Tils = (Ana × 4,800) + (Gonda × 240) + (Kora × 60) + (Kranti × 20) + Til`
 - **Discrepancy Evaluation**:
-  $$\text{Discrepancy Tils} = \sum_{i=1}^{n} \text{Owner Tils}_i - 76,800$$
+  `Discrepancy Tils = ∑(Owner Tils) − 76,800`
 - **Classification Engine**:
   1. **AUTHENTIC_PERFECT (সম্পূর্ণ নির্ভুল)**: Total Tils equals 76,800. Document is clean and certified.
   2. **FRAUD_OVERALLOCATION (জালিয়াতি সনাক্ত)**: Total Tils > 76,800. Immediately flags illegal share inflation and computes the exact excess decimal land illegally claimed.
   3. **DEFICIT_OR_TORN (অসম্পূর্ণ বা ছেঁড়া পাতা)**: Total Tils < 76,800. Warns that shares are missing due to torn document margins or an unlawfully concealed co-sharer.
 - **Modern Decimal (শতাংশ) Conversion**:
-  $$\text{Owner Decimals} = \left( \frac{\text{Owner Tils}}{76,800} \right) \times \text{Total Khatian Land Area}$$
+  `Owner Decimals = (Owner Tils ÷ 76,800) × Total Khatian Land Area`
   Eliminates dependence on middlemen by showing each co-sharer their exact acreage and percentage.
 
 ### 3.3 Human-in-the-Loop Interactive Editing
