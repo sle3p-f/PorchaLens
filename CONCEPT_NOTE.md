@@ -101,17 +101,6 @@ In Bangladesh, historical land records—specifically **CS (Cadastral Survey, ~1
 6. **Smart Digital e-Porcha Certificate**:
    Generates a print-ready, government-watermarked certified record with a cryptographic hash and QR code for instant offline verification.
 
----
-
-### 6. Nationwide Scalability & E-Governance Roadmap
-
-- **Phase 1 (Record Room Pilot)**: Deployed across Upazila Land Offices to batch-digitize decaying CS/SA Khatians before the paper disintegrates.
-- **Phase 2 (e-Namjari API Bridge)**: Integrated into the Ministry of Land's e-Mutation system to auto-verify submitted historical Porchas during field inquiries.
-- **Phase 3 (Citizen Land Portal)**: Embedded into the national land portal (`land.gov.bd`) allowing 170 million citizens to upload ancestral Porchas from their phones and verify legal shares.
-
----
-
-### 7. Team & Mentorship (LandTech 2026)
 
 - **Team Leader (DIU)**: [Student Name, DIU ID]  
 - **Co-Developer (DIU)**: [Student Name, DIU ID]  
